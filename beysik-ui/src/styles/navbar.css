@@ -1,0 +1,85 @@
+.navbar {
+  background-color: #ffffff;
+  color: #222222;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  height: 64px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-logo {
+  display: flex; /* Add this to help align the image if needed */
+  align-items: center; /* Add this to vertically align image if it's not already */
+}
+
+.navbar-logo img {
+  max-height: 30px; /* Adjust this value as needed */
+  width: auto; /* Maintain aspect ratio */
+}
+
+.navbar-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-link {
+  color: #222222;
+  font-size: 0.9rem;
+  font-weight: 500;
+  position: relative;
+  padding: 5px 0;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #444444;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #222222;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.navbar-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.icon-button {
+  background: transparent;
+  border: none;
+  color: #222222;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.icon-button:hover {
+  transform: scale(1.1);
+}

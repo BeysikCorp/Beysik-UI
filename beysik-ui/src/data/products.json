@@ -1,0 +1,507 @@
+[
+  {
+    "id": "1",
+    "name": "Organic Cotton Tee",
+    "category": "Tops",
+    "price": 45.00,
+    "originalPrice": null,
+    "listingImage": "https://placehold.co/400x500/F0F0F0/333?text=Organic+Tee&font=Inter",
+    "images": [
+      "https://placehold.co/600x750/F0F0F0/333?text=Organic+Tee+1&font=Inter",
+      "https://placehold.co/600x750/EAEAEA/333?text=Organic+Tee+2&font=Inter",
+      "https://placehold.co/600x750/F5F5F5/333?text=Organic+Tee+3&font=Inter"
+    ],
+    "thumbnails": [
+      "https://placehold.co/100x125/F0F0F0/333?text=Thumb1&font=Inter",
+      "https://placehold.co/100x125/EAEAEA/333?text=Thumb2&font=Inter",
+      "https://placehold.co/100x125/F5F5F5/333?text=Thumb3&font=Inter"
+    ],
+    "description": "A classic tee made from 100% GOTS-certified organic cotton. Soft, breathable, and designed for everyday comfort.",
+    "details": [
+      "100% GOTS-certified Organic Cotton",
+      "Regular Fit, true to size",
+      "Crew Neck"
+    ],
+    "availableSizes": ["XS", "S", "M", "L", "XL"],
+    "availableColors": [
+      { "name": "White", "hex": "#FFFFFF" },
+      { "name": "Black", "hex": "#000000" }
+    ],
+    "rating": 4.5,
+    "reviewsCount": 123,
+    "stock": 50,
+    "tags": ["new-arrival", "tops"]
+  },
+  {
+    "id": "2",
+    "name": "Linen Blend Shirt",
+    "category": "Tops",
+    "price": 65.00,
+    "originalPrice": null,
+    "listingImage": "https://placehold.co/400x500/F8F6F0/333?text=Linen+Shirt&font=Inter",
+    "images": [
+      "https://placehold.co/600x750/F8F6F0/333?text=Linen+Shirt+1&font=Inter",
+      "https://placehold.co/600x750/F5F2E8/333?text=Linen+Shirt+2&font=Inter",
+      "https://placehold.co/600x750/F2EFE6/333?text=Linen+Shirt+3&font=Inter"
+    ],
+    "thumbnails": [
+      "https://placehold.co/100x125/F8F6F0/333?text=Thumb1&font=Inter",
+      "https://placehold.co/100x125/F5F2E8/333?text=Thumb2&font=Inter",
+      "https://placehold.co/100x125/F2EFE6/333?text=Thumb3&font=Inter"
+    ],
+    "description": "Perfect for warm days, this breathable linen blend shirt offers effortless style and comfort.",
+    "details": [
+      "70% Linen, 30% Cotton blend",
+      "Relaxed fit",
+      "Button-down collar",
+      "Sustainable fabric processing"
+    ],
+    "availableSizes": ["S", "M", "L", "XL", "XXL"],
+    "availableColors": [
+      { "name": "Natural", "hex": "#F8F6F0" },
+      { "name": "Sky Blue", "hex": "#A6C0DC" },
+      { "name": "Terra", "hex": "#C97C5D" }
+    ],
+    "rating": 4.7,
+    "reviewsCount": 89,
+    "stock": 35,
+    "tags": ["new-arrival", "tops", "collections"]
+  },
+  {
+    "id": "3",
+    "name": "Wide Leg Trousers",
+    "category": "Bottoms",
+    "price": 85.00,
+    "originalPrice": 110.00,
+    "listingImage": "https://placehold.co/400x500/D0D0D0/333?text=Wide+Leg+Trousers&font=Inter",
+    "images": [
+      "https://placehold.co/600x750/D0D0D0/333?text=Trousers+1&font=Inter",
+      "https://placehold.co/600x750/C8C8C8/333?text=Trousers+2&font=Inter",
+      "https://placehold.co/600x750/D8D8D8/333?text=Trousers+3&font=Inter"
+    ],
+    "thumbnails": [
+      "https://placehold.co/100x125/D0D0D0/333?text=Thumb1&font=Inter",
+      "https://placehold.co/100x125/C8C8C8/333?text=Thumb2&font=Inter",
+      "https://placehold.co/100x125/D8D8D8/333?text=Thumb3&font=Inter"
+    ],
+    "description": "Elegant wide leg trousers with a high waist, crafted from flowing, sustainable Tencel fabric.",
+    "details": [
+      "100% Tencel Lyocell",
+      "High-waisted with belt loops",
+      "Wide leg silhouette",
+      "Side and back pockets",
+      "Biodegradable fabric"
+    ],
+    "availableSizes": ["XS", "S", "M", "L", "XL"],
+    "availableColors": [
+      { "name": "Stone Grey", "hex": "#D0D0D0" },
+      { "name": "Navy", "hex": "#28364D" },
+      { "name": "Black", "hex": "#000000" }
+    ],
+    "rating": 4.8,
+    "reviewsCount": 56,
+    "stock": 25,
+    "tags": ["new-arrival", "bottoms", "collections"]
+  },
+  {
+    "id": "4",
+    "name": "Essential V-Neck Tee",
+    "category": "Tops",
+    "price": 35.00,
+    "originalPrice": null,
+    "listingImage": "https://placehold.co/400x500/F0F0F0/333?text=V-Neck+Tee&font=Inter",
+    "images": [
+      "https://placehold.co/600x750/F0F0F0/333?text=V-Neck+1&font=Inter",
+      "https://placehold.co/600x750/EAEAEA/333?text=V-Neck+2&font=Inter",
+      "https://placehold.co/600x750/F5F5F5/333?text=V-Neck+3&font=Inter"
+    ],
+    "thumbnails": [
+      "https://placehold.co/100x125/F0F0F0/333?text=Thumb1&font=Inter",
+      "https://placehold.co/100x125/EAEAEA/333?text=Thumb2&font=Inter",
+      "https://placehold.co/100x125/F5F5F5/333?text=Thumb3&font=Inter"
+    ],
+    "description": "A timeless wardrobe essential. This soft V-neck tee is perfect for everyday wear and effortless layering.",
+    "details": [
+      "95% Organic Cotton, 5% Elastane",
+      "Regular fit",
+      "V-neck",
+      "Low-impact dyes"
+    ],
+    "availableSizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "availableColors": [
+      { "name": "White", "hex": "#FFFFFF" },
+      { "name": "Black", "hex": "#000000" },
+      { "name": "Grey Melange", "hex": "#ADADAD" },
+      { "name": "Navy", "hex": "#28364D" }
+    ],
+    "rating": 4.6,
+    "reviewsCount": 208,
+    "stock": 100,
+    "tags": ["basics", "tops"]
+  },
+  {
+    "id": "5",
+    "name": "Classic Straight Jeans",
+    "category": "Bottoms",
+    "price": 95.00,
+    "originalPrice": null,
+    "listingImage": "https://placehold.co/400x500/6B8CAE/FFFFFF?text=Straight+Jeans&font=Inter",
+    "images": [
+      "https://placehold.co/600x750/6B8CAE/FFFFFF?text=Jeans+1&font=Inter",
+      "https://placehold.co/600x750/5E7D9D/FFFFFF?text=Jeans+2&font=Inter",
+      "https://placehold.co/600x750/7798B8/FFFFFF?text=Jeans+3&font=Inter"
+    ],
+    "thumbnails": [
+      "https://placehold.co/100x125/6B8CAE/FFFFFF?text=Thumb1&font=Inter",
+      "https://placehold.co/100x125/5E7D9D/FFFFFF?text=Thumb2&font=Inter",
+      "https://placehold.co/100x125/7798B8/FFFFFF?text=Thumb3&font=Inter"
+    ],
+    "description": "Sustainable denim with a classic straight leg cut. Made with recycled water and eco-friendly processing.",
+    "details": [
+      "98% Organic Cotton, 2% Elastane",
+      "Mid-rise waist",
+      "Straight leg fit",
+      "Five-pocket design",
+      "Water-saving production"
+    ],
+    "availableSizes": ["24", "25", "26", "27", "28", "29", "30", "31", "32"],
+    "availableColors": [
+      { "name": "Mid Blue", "hex": "#6B8CAE" },
+      { "name": "Dark Indigo", "hex": "#28364D" },
+      { "name": "Washed Black", "hex": "#3A3A3A" }
+    ],
+    "rating": 4.9,
+    "reviewsCount": 187,
+    "stock": 75,
+    "tags": ["basics", "bottoms"]
+  },
+  {
+    "id": "6",
+    "name": "Relaxed Fit Hoodie",
+    "category": "Tops",
+    "price": 75.00,
+    "originalPrice": null,
+    "listingImage": "https://placehold.co/400x500/B0B0B0/333?text=Relaxed+Hoodie&font=Inter",
+    "images": [
+      "https://placehold.co/600x750/B0B0B0/333?text=Hoodie+1&font=Inter",
+      "https://placehold.co/600x750/A8A8A8/333?text=Hoodie+2&font=Inter",
+      "https://placehold.co/600x750/B8B8B8/333?text=Hoodie+3&font=Inter"
+    ],
+    "thumbnails": [
+      "https://placehold.co/100x125/B0B0B0/333?text=Thumb1&font=Inter",
+      "https://placehold.co/100x125/A8A8A8/333?text=Thumb2&font=Inter",
+      "https://placehold.co/100x125/B8B8B8/333?text=Thumb3&font=Inter"
+    ],
+    "description": "Ultra-comfortable organic cotton hoodie with a relaxed fit. Perfect for layering and everyday wear.",
+    "details": [
+      "100% Organic Cotton",
+      "Relaxed, oversized fit",
+      "Drawstring hood",
+      "Kangaroo pocket",
+      "Ribbed cuffs and hem"
+    ],
+    "availableSizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "availableColors": [
+      { "name": "Grey Melange", "hex": "#B0B0B0" },
+      { "name": "Black", "hex": "#000000" },
+      { "name": "Dusty Pink", "hex": "#D4A5A5" }
+    ],
+    "rating": 4.7,
+    "reviewsCount": 142,
+    "stock": 65,
+    "tags": ["basics", "tops"]
+  },
+  {
+    "id": "7",
+    "name": "Linen Blend Blazer",
+    "category": "Outerwear",
+    "price": 175.00,
+    "originalPrice": null,
+    "listingImage": "https://placehold.co/400x500/E8E0D5/333?text=Linen+Blazer&font=Inter",
+    "images": [
+      "https://placehold.co/600x750/E8E0D5/333?text=Blazer+1&font=Inter",
+      "https://placehold.co/600x750/DFD8CE/333?text=Blazer+2&font=Inter",
+      "https://placehold.co/600x750/F0E7DE/333?text=Blazer+3&font=Inter"
+    ],
+    "thumbnails": [
+      "https://placehold.co/100x125/E8E0D5/333?text=Thumb1&font=Inter",
+      "https://placehold.co/100x125/DFD8CE/333?text=Thumb2&font=Inter",
+      "https://placehold.co/100x125/F0E7DE/333?text=Thumb3&font=Inter"
+    ],
+    "description": "Elegant linen blend blazer with a relaxed silhouette. Perfect for elevating any outfit, from casual to formal.",
+    "details": [
+      "55% Linen, 45% Cotton",
+      "Relaxed fit",
+      "Single-breasted design",
+      "Two front pockets",
+      "Partially lined",
+      "Natural coconut shell buttons"
+    ],
+    "availableSizes": ["XS", "S", "M", "L", "XL"],
+    "availableColors": [
+      { "name": "Sand", "hex": "#E8E0D5" },
+      { "name": "Black", "hex": "#000000" },
+      { "name": "Sage Green", "hex": "#AFBEAC" }
+    ],
+    "rating": 4.8,
+    "reviewsCount": 67,
+    "stock": 30,
+    "tags": ["new-arrival", "collections", "outerwear"]
+  },
+  {
+    "id": "8",
+    "name": "Merino Wool Sweater",
+    "category": "Tops",
+    "price": 125.00,
+    "originalPrice": 155.00,
+    "listingImage": "https://placehold.co/400x500/B3C5D7/333?text=Merino+Sweater&font=Inter",
+    "images": [
+      "https://placehold.co/600x750/B3C5D7/333?text=Sweater+1&font=Inter",
+      "https://placehold.co/600x750/A6B7C9/333?text=Sweater+2&font=Inter",
+      "https://placehold.co/600x750/C0D0E0/333?text=Sweater+3&font=Inter"
+    ],
+    "thumbnails": [
+      "https://placehold.co/100x125/B3C5D7/333?text=Thumb1&font=Inter",
+      "https://placehold.co/100x125/A6B7C9/333?text=Thumb2&font=Inter",
+      "https://placehold.co/100x125/C0D0E0/333?text=Thumb3&font=Inter"
+    ],
+    "description": "Luxuriously soft merino wool sweater with a classic crew neck. Ethically sourced and temperature-regulating.",
+    "details": [
+      "100% Extra Fine Merino Wool",
+      "Regular fit",
+      "Crew neck",
+      "Ribbed cuffs and hem",
+      "Mulesing-free wool",
+      "Temperature-regulating properties"
+    ],
+    "availableSizes": ["XS", "S", "M", "L", "XL"],
+    "availableColors": [
+      { "name": "Sky Blue", "hex": "#B3C5D7" },
+      { "name": "Cream", "hex": "#F2E9DC" },
+      { "name": "Burgundy", "hex": "#8E2C48" },
+      { "name": "Forest Green", "hex": "#4A6741" }
+    ],
+    "rating": 4.9,
+    "reviewsCount": 105,
+    "stock": 40,
+    "tags": ["collections", "tops"]
+  },
+  {
+    "id": "9",
+    "name": "High-Waisted Culottes",
+    "category": "Bottoms",
+    "price": 95.00,
+    "originalPrice": null,
+    "listingImage": "https://placehold.co/400x500/DAB9A5/333?text=Culottes&font=Inter",
+    "images": [
+      "https://placehold.co/600x750/DAB9A5/333?text=Culottes+1&font=Inter",
+      "https://placehold.co/600x750/D0B09D/333?text=Culottes+2&font=Inter",
+      "https://placehold.co/600x750/E4C2AD/333?text=Culottes+3&font=Inter"
+    ],
+    "thumbnails": [
+      "https://placehold.co/100x125/DAB9A5/333?text=Thumb1&font=Inter",
+      "https://placehold.co/100x125/D0B09D/333?text=Thumb2&font=Inter",
+      "https://placehold.co/100x125/E4C2AD/333?text=Thumb3&font=Inter"
+    ],
+    "description": "Flowy, high-waisted culottes in sustainable Tencel. Providing the perfect balance of comfort and style.",
+    "details": [
+      "100% Lyocell (Tencel)",
+      "High-waisted",
+      "Wide leg, cropped length",
+      "Side pockets",
+      "Belt loops with removable belt",
+      "Biodegradable fabric"
+    ],
+    "availableSizes": ["XS", "S", "M", "L", "XL"],
+    "availableColors": [
+      { "name": "Terracotta", "hex": "#DAB9A5" },
+      { "name": "Black", "hex": "#000000" },
+      { "name": "Olive", "hex": "#706D51" }
+    ],
+    "rating": 4.6,
+    "reviewsCount": 74,
+    "stock": 35,
+    "tags": ["new-arrival", "bottoms", "collections"]
+  },
+  {
+    "id": "10",
+    "name": "Basic Cotton Socks",
+    "category": "Accessories",
+    "price": 15.00,
+    "originalPrice": null,
+    "listingImage": "https://placehold.co/400x500/E0E0E0/333?text=Cotton+Socks&font=Inter",
+    "images": [
+      "https://placehold.co/600x750/E0E0E0/333?text=Socks+1&font=Inter",
+      "https://placehold.co/600x750/D8D8D8/333?text=Socks+2&font=Inter",
+      "https://placehold.co/600x750/E8E8E8/333?text=Socks+3&font=Inter"
+    ],
+    "thumbnails": [
+      "https://placehold.co/100x125/E0E0E0/333?text=Thumb1&font=Inter",
+      "https://placehold.co/100x125/D8D8D8/333?text=Thumb2&font=Inter",
+      "https://placehold.co/100x125/E8E8E8/333?text=Thumb3&font=Inter"
+    ],
+    "description": "Premium organic cotton socks. Soft, durable, and perfect for everyday comfort.",
+    "details": [
+      "95% Organic Cotton, 5% Elastane",
+      "Ankle length",
+      "Ribbed cuff",
+      "Sold as a pack of three",
+      "Low-impact dyes"
+    ],
+    "availableSizes": ["S (36-38)", "M (39-41)", "L (42-44)"],
+    "availableColors": [
+      { "name": "Mixed Neutrals", "hex": "#E0E0E0" }
+    ],
+    "rating": 4.5,
+    "reviewsCount": 93,
+    "stock": 120,
+    "tags": ["basics", "accessories"]
+  },
+  {
+    "id": "11",
+    "name": "Oversized Shirt Dress",
+    "category": "Dresses",
+    "price": 115.00,
+    "originalPrice": null,
+    "listingImage": "https://placehold.co/400x500/B5CFB8/333?text=Shirt+Dress&font=Inter",
+    "images": [
+      "https://placehold.co/600x750/B5CFB8/333?text=Dress+1&font=Inter",
+      "https://placehold.co/600x750/AAC2AD/333?text=Dress+2&font=Inter",
+      "https://placehold.co/600x750/C0DAC3/333?text=Dress+3&font=Inter"
+    ],
+    "thumbnails": [
+      "https://placehold.co/100x125/B5CFB8/333?text=Thumb1&font=Inter",
+      "https://placehold.co/100x125/AAC2AD/333?text=Thumb2&font=Inter",
+      "https://placehold.co/100x125/C0DAC3/333?text=Thumb3&font=Inter"
+    ],
+    "description": "Versatile oversized shirt dress with a relaxed silhouette. Can be worn belted or loose for different looks.",
+    "details": [
+      "100% GOTS-certified Organic Cotton",
+      "Oversized fit",
+      "Button-down front",
+      "Collar neckline",
+      "Side pockets",
+      "Includes a fabric belt"
+    ],
+    "availableSizes": ["XS", "S", "M", "L", "XL"],
+    "availableColors": [
+      { "name": "Sage Green", "hex": "#B5CFB8" },
+      { "name": "White", "hex": "#FFFFFF" },
+      { "name": "Dusty Blue", "hex": "#9CAFC2" }
+    ],
+    "rating": 4.8,
+    "reviewsCount": 57,
+    "stock": 45,
+    "tags": ["new-arrival", "dresses", "collections"]
+  },
+  {
+    "id": "12",
+    "name": "Recycled Wool Cardigan",
+    "category": "Tops",
+    "price": 135.00,
+    "originalPrice": 165.00,
+    "listingImage": "https://placehold.co/400x500/C3BBB4/333?text=Wool+Cardigan&font=Inter",
+    "images": [
+      "https://placehold.co/600x750/C3BBB4/333?text=Cardigan+1&font=Inter",
+      "https://placehold.co/600x750/B9B1AA/333?text=Cardigan+2&font=Inter",
+      "https://placehold.co/600x750/CCC5BE/333?text=Cardigan+3&font=Inter"
+    ],
+    "thumbnails": [
+      "https://placehold.co/100x125/C3BBB4/333?text=Thumb1&font=Inter",
+      "https://placehold.co/100x125/B9B1AA/333?text=Thumb2&font=Inter",
+      "https://placehold.co/100x125/CCC5BE/333?text=Thumb3&font=Inter"
+    ],
+    "description": "Cozy and sustainable cardigan made from recycled wool. A timeless layer that combines comfort with ethics.",
+    "details": [
+      "70% Recycled Wool, 30% Organic Cotton",
+      "Relaxed fit",
+      "Button-front closure",
+      "Ribbed cuffs and hem",
+      "Two front patch pockets",
+      "Low-impact production"
+    ],
+    "availableSizes": ["XS", "S", "M", "L", "XL"],
+    "availableColors": [
+      { "name": "Oatmeal", "hex": "#C3BBB4" },
+      { "name": "Charcoal", "hex": "#44464A" },
+      { "name": "Navy", "hex": "#28364D" }
+    ],
+    "rating": 4.7,
+    "reviewsCount": 81,
+    "stock": 35,
+    "tags": ["collections", "tops"]
+  },
+  {
+    "id": "13",
+    "name": "Essential Tank Top",
+    "category": "Tops",
+    "price": 30.00,
+    "originalPrice": null,
+    "listingImage": "https://placehold.co/400x500/F0F0F0/333?text=Tank+Top&font=Inter",
+    "images": [
+      "https://placehold.co/600x750/F0F0F0/333?text=Tank+1&font=Inter",
+      "https://placehold.co/600x750/EAEAEA/333?text=Tank+2&font=Inter",
+      "https://placehold.co/600x750/F5F5F5/333?text=Tank+3&font=Inter"
+    ],
+    "thumbnails": [
+      "https://placehold.co/100x125/F0F0F0/333?text=Thumb1&font=Inter",
+      "https://placehold.co/100x125/EAEAEA/333?text=Thumb2&font=Inter",
+      "https://placehold.co/100x125/F5F5F5/333?text=Thumb3&font=Inter"
+    ],
+    "description": "Versatile organic cotton tank top with a flattering fit. Perfect for layering or wearing on its own.",
+    "details": [
+      "95% Organic Cotton, 5% Elastane",
+      "Regular fit",
+      "Scoop neckline",
+      "Sleeveless",
+      "Low-impact production"
+    ],
+    "availableSizes": ["XS", "S", "M", "L", "XL"],
+    "availableColors": [
+      { "name": "White", "hex": "#FFFFFF" },
+      { "name": "Black", "hex": "#000000" },
+      { "name": "Grey Melange", "hex": "#ADADAD" },
+      { "name": "Navy", "hex": "#28364D" }
+    ],
+    "rating": 4.5,
+    "reviewsCount": 156,
+    "stock": 85,
+    "tags": ["basics", "tops"]
+  },
+  {
+    "id": "14",
+    "name": "Slim Fit Chinos",
+    "category": "Bottoms",
+    "price": 85.00,
+    "originalPrice": null,
+    "listingImage": "https://placehold.co/400x500/BCB4A0/333?text=Slim+Chinos&font=Inter",
+    "images": [
+      "https://placehold.co/600x750/BCB4A0/333?text=Chinos+1&font=Inter",
+      "https://placehold.co/600x750/B2AA97/333?text=Chinos+2&font=Inter",
+      "https://placehold.co/600x750/C6BEA9/333?text=Chinos+3&font=Inter"
+    ],
+    "thumbnails": [
+      "https://placehold.co/100x125/BCB4A0/333?text=Thumb1&font=Inter",
+      "https://placehold.co/100x125/B2AA97/333?text=Thumb2&font=Inter",
+      "https://placehold.co/100x125/C6BEA9/333?text=Thumb3&font=Inter"
+    ],
+    "description": "Classic slim fit chinos made from organic cotton twill. Versatile and comfortable for everyday wear.",
+    "details": [
+      "98% Organic Cotton, 2% Elastane",
+      "Slim fit",
+      "Mid-rise waist",
+      "Four-pocket design",
+      "Button and zip closure"
+    ],
+    "availableSizes": ["28", "30", "32", "34", "36", "38"],
+    "availableColors": [
+      { "name": "Khaki", "hex": "#BCB4A0" },
+      { "name": "Navy", "hex": "#28364D" },
+      { "name": "Black", "hex": "#000000" }
+    ],
+    "rating": 4.6,
+    "reviewsCount": 98,
+    "stock": 60,
+    "tags": ["basics", "bottoms"]
+  }
+]

@@ -1,42 +1,88 @@
+/* App.css - Minimized version with only essential styles */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* ---------- NAVIGATION BAR ---------- */
+.app-bar {
+  background-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(10px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  min-height: 60px;
 }
 
-.card {
-  padding: 2em;
+.brand-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
-.read-the-docs {
-  color: #888;
+.logo-image {
+  height: 30px;
+  width: auto;
+}
+
+.nav-links-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.nav-link-button {
+  font-weight: 400;
+  font-size: 0.9rem;
+  padding: 6px 12px;
+  color: #222222;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  text-transform: none;
+  text-decoration: none; /* Ensure no default underline */
+  position: relative; 
+  transition: transform 0.2s ease-in-out; /* Smooth transition for grow effect */
+}
+
+.nav-link-button:hover {
+  transform: scale(1.1); /* Grow effect on hover */
+}
+
+.nav-link-button:active,
+.nav-link-button.active, /* Add .active class in your JSX for the current page link */
+.nav-link-button:focus,
+.nav-link-button:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 4px; /* Optional: Adjusts space between text and underline */
+  outline: none; /* Remove the default browser focus outline */
+  /* You can also add a slight scale effect here if desired, e.g., transform: scale(1.05); */
+}
+
+.header-icons-container {
+  display: flex;
+  align-items: center;
+}
+
+.icon-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: #222222;
 }
