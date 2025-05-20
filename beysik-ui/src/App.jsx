@@ -5,9 +5,16 @@ import NewArrivals from './pages/NewArrivals';
 import Basics from './pages/Basics';
 import Collections from './pages/Collections';
 import About from './pages/About'; 
+import LoginForm from './auth/LoginForm';
+import SignUpForm from './auth/SignUpForm';
+import CheckoutPage from './pages/CheckoutPage';
+import AdminDashboard from './admin/adminDashboard';
+import ProtectedRoute from './routes/ProtectedRoute';
 import Navbar from './components/Navbar';
+import { AuthProvider } from './context/AuthContext';
 import './styles/global.css';
 import ProductDetailsPage from './pages/ProductDetails';
+import OrderConfirmation from './pages/OrderConfirmationPage';
 
 function App() {
   const [cartOpen, setCartOpen] = useState(false);
@@ -52,33 +59,62 @@ function App() {
     );
   };
 
-  // Checkout handler (implement as needed)
+  // Checkout handler
   const handleCheckout = () => {
-    alert('Proceeding to checkout!');
+    // Navigate to checkout page
+    window.location.href = '/checkout';
     setCartOpen(false);
   };
 
+  // Clear cart handler
+  const clearCart = () => {
+    setCartItems([]);
+  };
+
   return (
-    <Router>
-      <Navbar
-        cartItems={cartItems}
-        cartOpen={cartOpen}
-        setCartOpen={setCartOpen}
-        onRemoveItem={removeFromCart}
-        onCheckout={handleCheckout}
-      />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/new-arrivals" element={<NewArrivals />} />
-        <Route path="/basics" element={<Basics />} />
-        <Route path="/collections" element={<Collections />} />
-        <Route path="/about" element={<About />} />
-        <Route
-          path="/product/:productId"
-          element={<ProductDetailsPage addToCart={addToCart} />}
+    <AuthProvider>
+      <Router>
+        <Navbar
+          cartItems={cartItems}
+          cartOpen={cartOpen}
+          setCartOpen={setCartOpen}
+          onRemoveItem={removeFromCart}
+          onUpdateQuantity={handleUpdateQuantity}
+          onCheckout={handleCheckout}
         />
-      </Routes>
-    </Router>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/new-arrivals" element={<NewArrivals />} />
+          <Route path="/basics" element={<Basics />} />
+          <Route path="/collections" element={<Collections />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/signup" element={<SignUpForm />} />
+          <Route
+            path="/product/:productId"
+            element={<ProductDetailsPage addToCart={addToCart} />}
+          />
+          <Route
+            path="/checkout"
+            element={
+              <CheckoutPage cartItems={cartItems} clearCart={clearCart} />
+            }
+          />
+          <Route
+            path="/order-confirmation"
+            element={<OrderConfirmation />}
+          />
+          <Route
+            path="/admin/*"
+            element={
+              <ProtectedRoute adminOnly={true}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

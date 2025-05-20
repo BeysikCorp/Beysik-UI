@@ -1,16 +1,39 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
-import '../styles/navbar.css';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import Badge from '@mui/material/Badge';
-import hLogo from '../assets/Logo/hLogo.png'; // Import the image
+import '../styles/navbar.css';
+import hLogo from '../assets/Logo/hLogo.png';
 import CartModal from './cartModal.jsx';
+import { useAuth } from '../context/AuthContext';
 
-function Navbar({ cartItems = [], cartOpen, setCartOpen, onRemoveItem, onCheckout }) {
+function Navbar({ cartItems = [], cartOpen, setCartOpen, onRemoveItem, onUpdateQuantity, onCheckout }) {
+  const { user, logout, isAdmin } = useAuth();
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const navigate = useNavigate();
+  
+  // For account menu
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  
+  const handleAccountClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  
+  const handleLogout = () => {
+    logout();
+    handleClose();
+    navigate('/');
+  };
 
   return (
     <>
@@ -28,7 +51,7 @@ function Navbar({ cartItems = [], cartOpen, setCartOpen, onRemoveItem, onCheckou
           </nav>
 
            <div className="navbar-brand">
-            <Link to="/" className="navbar-logo"><img src={hLogo} alt="Beysik" /></Link> {/* Use the imported image */}
+            <Link to="/" className="navbar-logo"><img src={hLogo} alt="Beysik" /></Link>
           </div>
 
           <nav className="navbar-links">
@@ -37,9 +60,44 @@ function Navbar({ cartItems = [], cartOpen, setCartOpen, onRemoveItem, onCheckou
           </nav>
           
           <div className="navbar-actions">
-            <IconButton aria-label="account" className="icon-button">
+            <IconButton 
+              aria-label="account"
+              className="icon-button"
+              onClick={handleAccountClick}
+            >
               <AccountCircleOutlinedIcon />
             </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              MenuListProps={{
+                'aria-labelledby': 'account-button',
+              }}
+            >
+              {user ? (
+                <>
+                  <MenuItem onClick={handleClose}>
+                    <Link to="/profile" className="menu-link">Profile</Link>
+                  </MenuItem>
+                  {isAdmin && isAdmin() && (
+                    <MenuItem onClick={handleClose}>
+                      <Link to="/admin" className="menu-link">Admin Dashboard</Link>
+                    </MenuItem>
+                  )}
+                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                </>
+              ) : (
+                <>
+                  <MenuItem onClick={handleClose}>
+                    <Link to="/login" className="menu-link">Login</Link>
+                  </MenuItem>
+                  <MenuItem onClick={handleClose}>
+                    <Link to="/signup" className="menu-link">Sign Up</Link>
+                  </MenuItem>
+                </>
+              )}
+            </Menu>
             <IconButton aria-label="cart" className="icon-button" onClick={() => setCartOpen(true)}>
               <Badge badgeContent={cartCount} color="primary">
                 <ShoppingCartOutlinedIcon />
@@ -52,7 +110,8 @@ function Navbar({ cartItems = [], cartOpen, setCartOpen, onRemoveItem, onCheckou
         isOpen={cartOpen} 
         onClose={() => setCartOpen(false)} 
         cartItems={cartItems} 
-        onRemoveItem={onRemoveItem} 
+        onRemoveItem={onRemoveItem}
+        onUpdateQuantity={onUpdateQuantity}
         onCheckout={onCheckout} 
       />
     </>
