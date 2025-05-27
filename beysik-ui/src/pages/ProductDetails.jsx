@@ -6,7 +6,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import '../styles/product-details.css';
 import productsData from '../data/products.json'; // Import the JSON data
 
-const ProductDetailsPage = () => {
+const ProductDetailsPage = ({ addToCart }) => {
   // Normally would use useParams() to get productId from URL
   const { productId } = useParams(); // Assuming you'll use useParams from react-router-dom
   const [product, setProduct] = useState(null);
@@ -40,16 +40,18 @@ const ProductDetailsPage = () => {
       alert('Please select a color.');
       return;
     }
-    
-    console.log('Added to cart:', {
-      productId: product.id,
-      name: product.name,
-      size: selectedSize,
-      color: selectedColor,
-      quantity,
-      price: product.price,
-    });
-    // Add actual cart logic here
+    // Call the prop function to add to cart
+    if (typeof addToCart === 'function') {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        image: selectedImage,
+        size: selectedSize,
+        color: selectedColor,
+        quantity,
+        price: product.price,
+      });
+    }
   };
 
   const handleWishlistToggle = () => {

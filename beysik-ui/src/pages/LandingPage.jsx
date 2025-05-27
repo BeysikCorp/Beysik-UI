@@ -2,31 +2,35 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/landing-page.css';
 
-// Moved categories to a separate constant to improve readability
+// Improved: Added 'link' property for each category
 const CATEGORIES = [
   {
     id: 1,
     name: 'SHIRTS',
     description: 'Airy and lightweight shirts made from GOTS-certified organic cotton.',
-    image: 'https://cdn.thewirecutter.com/wp-content/media/2024/09/menswhitetees-2048px-02728.jpg?auto=webp&quality=75&width=1024', 
+    image: 'https://cdn.thewirecutter.com/wp-content/media/2024/09/menswhitetees-2048px-02728.jpg?auto=webp&quality=75&width=1024',
+    link: '/collections?category=shirts',
   },
   {
     id: 2,
     name: 'HOODIES',
     description: 'Cozy and sustainable hoodies made from recycled and organic fabrics.',
     image: 'https://zellbury.com/cdn/shop/files/MBH25001_-_NAVY_1.jpg?v=1731320050',
+    link: '/collections?category=hoodies',
   },
   {
     id: 3,
     name: 'OUTERWEAR',
     description: 'High quality and easy to style. All jackets are made from 100% recycled polyester or organic cotton.',
     image: 'https://www.luciclothing.com/cdn/shop/products/basickimonojacket_2048x2048.jpg?v=1697793548',
+    link: '/collections?category=outerwear',
   },
   {
     id: 4,
     name: 'PANTS',
     description: 'Comfortable and durable pants made from eco-friendly fabrics.',
     image: 'https://www.italiancolony.com/cdn/shop/files/0A0A9065.jpg?v=1696587359',
+    link: '/collections?category=pants',
   },
 ];
 
@@ -39,7 +43,10 @@ function LandingPage() {
         <div className="container hero-content">
           <h1 className="hero-title">Effortless Style</h1>
           <p className="hero-subtitle">Discover curated collections of timeless pieces, designed for modern living.</p>
-          <button className="hero-button">Shop New Arrivals</button>
+          {/* Improved: Make button a Link for accessibility and navigation */}
+          <Link to="/new-arrivals" className="hero-button" aria-label="Shop New Arrivals">
+            Shop New Arrivals
+          </Link>
         </div>
       </section>
 
@@ -69,14 +76,17 @@ function LandingPage() {
           <div className="category-grid">
             {CATEGORIES.map((category) => (
               <div key={category.id} className="category-card">
-                <div 
-                  className="category-image-container" 
+                <div
+                  className="category-image-container"
                   style={{ backgroundImage: `url(${category.image})` }}
                 >
                   <div className="category-overlay">
                     <h3 className="category-title">{category.name}</h3>
                     <p className="category-description">{category.description}</p>
-                    <button className="category-button">Shop Now</button>
+                    {/* Improved: Use Link for navigation and accessibility */}
+                    <Link to={category.link}>
+                      <button className="category-button" aria-label={`Shop ${category.name}`}>Shop Now</button>
+                    </Link>
                   </div>
                 </div>
               </div>
