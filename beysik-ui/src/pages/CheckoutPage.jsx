@@ -21,7 +21,7 @@ import { useAuth } from '../context/AuthContext';
 import { sendOrderToQueue } from '../services/queueService';
 
 const CheckoutPage = ({ cartItems = [], clearCart }) => {
-  const { user } = useAuth();
+  const { user, getAccessToken } = useAuth();
   const navigate = useNavigate();
   const [shippingInfo, setShippingInfo] = useState({
     firstName: user?.name?.split(' ')[0] || '',
@@ -65,6 +65,13 @@ const CheckoutPage = ({ cartItems = [], clearCart }) => {
     setIsSubmitting(true);
     setError(null);
     
+    if (!user) {
+      setError('You must be logged in to place an order.');
+      setIsSubmitting(false);
+      navigate('/login', { state: { from: '/checkout', message: 'Please log in to complete your purchase' } });
+      return;
+    }
+
     if (cartItems.length === 0) {
       setError('Your cart is empty');
       setIsSubmitting(false);
@@ -72,33 +79,34 @@ const CheckoutPage = ({ cartItems = [], clearCart }) => {
     }
     
     try {
-      // Create order object
-      const order = {
-        user: {
-          id: user.id || '123', // Default for demo
-          email: user.email,
-          name: `${shippingInfo.firstName} ${shippingInfo.lastName}`
-        },
-        items: cartItems,
-        shipping: shippingInfo,
-        payment: {
-          method: paymentMethod,
-          total: total.toFixed(2)
-        },
-        status: 'pending',
-        createdAt: new Date().toISOString()
+      // Create order payload according to C# Order model
+      const orderPayload = {
+        OrderDate: new Date().toISOString(),
+        UserID: user.sub, // Assuming user.sub is the Auth0 user ID
+        ProductID: cartItems.map(item => item.id), // Assuming item.id is the ProductID
+        Quantity: cartItems.map(item => item.quantity),
+        Status: 0, // 0 for Pending
       };
       
-      // Send to backend via RabbitMQ
-      await sendOrderToQueue(order);
+      // Send to backend, passing getAccessToken
+      const response = await sendOrderToQueue(orderPayload, getAccessToken); 
       
       // Show success and clear cart
       setSuccess(true);
       clearCart();
       
-      // Redirect after a short delay
+      // Redirect after a short delay, passing the original frontend order/cart details for confirmation page
+      const confirmationOrderData = {
+        ...orderPayload, // The data sent to backend
+        shippingInfo, // For display on confirmation page
+        paymentMethod, // For display on confirmation page
+        items: cartItems, // For display on confirmation page
+        total: total.toFixed(2), // For display on confirmation page
+        backendResponse: response // Include backend response (e.g., order ID from DB)
+      };
+
       setTimeout(() => {
-        navigate('/order-confirmation', { state: { order } });
+        navigate('/order-confirmation', { state: { order: confirmationOrderData } });
       }, 2000);
     } catch (err) {
       console.error('Checkout error:', err);

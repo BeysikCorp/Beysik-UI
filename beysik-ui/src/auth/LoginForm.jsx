@@ -1,91 +1,54 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TextField, Button, Paper, Typography, Box, Alert } from '@mui/material';
+import { Button, Paper, Typography, Box } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
-import { authenticate } from '../services/queueService';
 
-const LoginForm = ({ redirectTo = '/' }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const LoginForm = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, isAuthenticated, loading } = useAuth();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setIsSubmitting(true);
-    
-    try {
-      // Use the mock authentication service
-      const userData = await authenticate({ email, password });
-      login(userData);
-      navigate(redirectTo);
-    } catch (err) {
-      setError('Invalid email or password');
-      console.error(err);
-    } finally {
-      setIsSubmitting(false);
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
     }
+  }, [isAuthenticated, navigate]);
+
+  const handleLogin = async () => {
+    await login();
   };
 
+  const handleSignUp = async () => {
+    await login({ authorizationParams: { screen_hint: 'signup' } });
+  };
+
+  if (loading) {
+    return <Typography>Loading...</Typography>;
+  }
+
   return (
-    <Paper elevation={3} sx={{ p: 4, maxWidth: 400, mx: 'auto', mt: 8 }}>
-      <Typography variant="h5" component="h1" gutterBottom align="center">
-        Log In to Your Account
+    <Paper elevation={3} sx={{ p: 4, maxWidth: 400, mx: 'auto', mt: 8, textAlign: 'center' }}>
+      <Typography variant="h5" component="h1" gutterBottom>
+        Welcome to Beysik
       </Typography>
-      
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-      
-      <Box component="form" onSubmit={handleSubmit} noValidate>
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          id="email"
-          label="Email Address"
-          name="email"
-          autoComplete="email"
-          autoFocus
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          name="password"
-          label="Password"
-          type="password"
-          id="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          sx={{ mt: 3, mb: 2 }}
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Logging In...' : 'Log In'}
-        </Button>
-        
-        <Box sx={{ mt: 2, textAlign: 'center' }}>
-          <Button 
-            onClick={() => navigate('/signup')}
-            color="primary"
-          >
-            Don't have an account? Sign Up
-          </Button>
-        </Box>
-      </Box>
+      <Typography variant="body1" sx={{ mb: 3 }}>
+        Please log in or sign up to continue.
+      </Typography>
+      <Button
+        onClick={handleLogin}
+        fullWidth
+        variant="contained"
+        sx={{ mt: 2, mb: 1 }}
+      >
+        Log In
+      </Button>
+      <Button
+        onClick={handleSignUp}
+        fullWidth
+        variant="outlined"
+        sx={{ mb: 2 }}
+      >
+        Sign Up
+      </Button>
     </Paper>
   );
 };

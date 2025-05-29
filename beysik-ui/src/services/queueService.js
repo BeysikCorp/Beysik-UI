@@ -1,54 +1,102 @@
 // Mock implementation for testing without a backend
 
 /**
- * Simulates sending an order to a queue
- * @param {Object} order - The order data
- * @returns {Promise} - Promise that resolves when order is sent to queue
+ * Sends an order to the backend API.
+ * @param {Object} order - The order data.
+ * @param {Function} getAccessToken - Function to retrieve the Auth0 access token.
+ * @returns {Promise} - Promise that resolves with the API response.
  */
-export async function sendOrderToQueue(order) {
-  console.log('Mock: Sending order to queue:', order);
-  
-  // Simulate network delay
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      console.log('Mock: Order successfully queued');
-      // Save to localStorage for persistence
-      const orders = JSON.parse(localStorage.getItem('beysikOrders') || '[]');
-      orders.push({
-        ...order,
-        id: `ORD-${Math.floor(Math.random() * 10000)}`,
-        timestamp: new Date().toISOString()
-      });
-      localStorage.setItem('beysikOrders', JSON.stringify(orders));
-      resolve({ success: true, orderId: order.id });
-    }, 1500);
-  });
+export async function sendOrderToQueue(order, getAccessToken) {
+  console.log('Attempting to send order to queue:', order);
+
+  if (typeof getAccessToken !== 'function') {
+    console.error('getAccessToken function is required to send order.');
+    return Promise.reject(new Error('Authentication token provider is missing or not a function.'));
+  }
+
+  try {
+    const token = await getAccessToken(); // Use the passed getAccessToken function
+
+    if (!token) {
+      console.error('Failed to retrieve access token. Order not sent.');
+      return Promise.reject(new Error('Failed to retrieve access token.'));
+    }
+
+    // Replace with your actual API endpoint
+    const apiUrl = '/api/orders'; // EXAMPLE: Make sure this matches your backend
+    
+    console.log(`Calling API: POST ${apiUrl} with token.`);
+    const response = await fetch(apiUrl, { // Or use axios
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(order),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text(); 
+      console.error(`API request failed: ${response.status}`, errorData);
+      throw new Error(`API request failed with status ${response.status}: ${errorData}`);
+    }
+
+    const responseData = await response.json();
+    console.log('Order successfully sent to queue via API:', responseData);
+    return responseData;
+
+  } catch (error) {
+    console.error('Error in sendOrderToQueue:', error);
+    throw error; 
+  }
 }
 
 /**
- * Simulates getting order status
- * @param {string} orderId - The order ID to check
- * @returns {Promise} - Promise that resolves with order status
+ * Gets order status from the backend API.
+ * @param {string} orderId - The order ID to check.
+ * @param {Function} getAccessToken - Function to retrieve the Auth0 access token.
+ * @returns {Promise} - Promise that resolves with order status.
  */
-export async function getOrderStatus(orderId) {
-  console.log('Mock: Getting order status for:', orderId);
-  
-  // Simulate network delay
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const orders = JSON.parse(localStorage.getItem('beysikOrders') || '[]');
-      const order = orders.find(o => o.id === orderId);
-      
-      if (order) {
-        resolve({ 
-          status: order.status || 'processing',
-          lastUpdated: new Date().toISOString()
-        });
-      } else {
-        resolve({ status: 'not_found' });
-      }
-    }, 800);
-  });
+export async function getOrderStatus(orderId, getAccessToken) {
+  console.log('Attempting to get order status for:', orderId);
+
+  if (typeof getAccessToken !== 'function') {
+    console.error('getAccessToken function is required to get order status.');
+    return Promise.reject(new Error('Authentication token provider is missing or not a function.'));
+  }
+
+  try {
+    const token = await getAccessToken(); // Use the passed getAccessToken function
+
+    if (!token) {
+      console.error('Failed to retrieve access token. Cannot get order status.');
+      return Promise.reject(new Error('Failed to retrieve access token.'));
+    }
+
+    const apiUrl = `/api/orders/${orderId}/status`; // EXAMPLE: Make sure this matches your backend
+    
+    console.log(`Calling API: GET ${apiUrl} with token.`);
+    const response = await fetch(apiUrl, { // Or use axios
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error(`API request failed: ${response.status}`, errorData);
+      throw new Error(`API request failed with status ${response.status}: ${errorData}`);
+    }
+
+    const responseData = await response.json();
+    console.log('Order status retrieved via API:', responseData);
+    return responseData;
+
+  } catch (error) {
+    console.error('Error in getOrderStatus:', error);
+    throw error;
+  }
 }
 
 /**
@@ -101,69 +149,3 @@ export async function register(userData) {
     }, 1500);
   });
 }
-
-
-// import axios from 'axios';
-
-// // Backend API base URL - Replace with your actual backend URL
-// const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
-
-// /**
-//  * Send an order to the queue for processing
-//  * @param {Object} order - The order data
-//  * @returns {Promise} - Promise that resolves when order is sent to queue
-//  */
-// export async function sendOrderToQueue(order) {
-//   try {
-//     const response = await axios.post(`${API_BASE_URL}/orders/queue`, order);
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error sending order to queue:', error);
-//     throw error;
-//   }
-// }
-
-// /**
-//  * Get order status from the backend
-//  * @param {string} orderId - The order ID to check
-//  * @returns {Promise} - Promise that resolves with order status
-//  */
-// export async function getOrderStatus(orderId) {
-//   try {
-//     const response = await axios.get(`${API_BASE_URL}/orders/${orderId}/status`);
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error getting order status:', error);
-//     throw error;
-//   }
-// }
-
-// /**
-//  * Send authentication request to backend
-//  * @param {Object} credentials - User credentials
-//  * @returns {Promise} - Promise that resolves with auth response
-//  */
-// export async function authenticate(credentials) {
-//   try {
-//     const response = await axios.post(`${API_BASE_URL}/auth/login`, credentials);
-//     return response.data;
-//   } catch (error) {
-//     console.error('Authentication error:', error);
-//     throw error;
-//   }
-// }
-
-// /**
-//  * Register a new user with the backend
-//  * @param {Object} userData - User registration data
-//  * @returns {Promise} - Promise that resolves with registration response
-//  */
-// export async function register(userData) {
-//   try {
-//     const response = await axios.post(`${API_BASE_URL}/auth/register`, userData);
-//     return response.data;
-//   } catch (error) {
-//     console.error('Registration error:', error);
-//     throw error;
-//   }
-// }
