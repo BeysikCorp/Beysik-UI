@@ -1,29 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import '../styles/product-details.css';
-import productsData from '../data/products.json'; // Import the JSON data
+import { getProductById } from '../services/productService'; // Importing the productService
+import { useCart } from '../context/CartContext'; // Assuming you have a CartContext
 
-const ProductDetailsPage = ({ addToCart }) => {
-  // Normally would use useParams() to get productId from URL
-  const { productId } = useParams(); // Assuming you'll use useParams from react-router-dom
+const ProductDetailsPage = () => {
+  const { productId } = useParams();
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const { addToCart } = useCart(); // Use the addToCart function from CartContext
 
   useEffect(() => {
-    // Simulating API call to fetch product
-    const foundProduct = productsData.find(p => p.id === productId); // Use the imported data
-    if (foundProduct) {
-      setProduct(foundProduct);
-      setSelectedImage(foundProduct.images[0]);
-      setSelectedSize(foundProduct.availableSizes[0]);
-      setSelectedColor(foundProduct.availableColors[0].name);
+    const fetchProduct = async () => {
+      try {
+        // productId from useParams might be a string, ensure your service handles it or convert to number if needed
+        const fetchedProduct = await getProductById(productId);
+        setProduct(fetchedProduct);
+        setSelectedImage(fetchedProduct.images[0]);
+        setSelectedSize(fetchedProduct.availableSizes[0]);
+        setSelectedColor(fetchedProduct.availableColors[0].name);
+      } catch (err) {
+        console.error(`Error fetching product ${productId}:`, err);
+        setError(err.message || "Failed to load product details.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (productId) {
+      fetchProduct();
     }
   }, [productId]);
 
@@ -51,6 +63,7 @@ const ProductDetailsPage = ({ addToCart }) => {
         quantity,
         price: product.price,
       });
+      alert(`${quantity} x ${product.name} added to cart!`);
     }
   };
 

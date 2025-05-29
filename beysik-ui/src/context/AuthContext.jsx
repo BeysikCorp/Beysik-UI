@@ -10,59 +10,70 @@ export const AuthProvider = ({ children }) => {
     user: auth0User,
     isAuthenticated,
     isLoading,
-    getAccessTokenSilently
+    getAccessTokenSilently,
+    error: auth0Error,
   } = useAuth0();
 
-  // The login function will now trigger Auth0's redirect flow
-  const login = async (options) => {
-    await loginWithRedirect(options);
+  // Wrapper for logout to include Auth0's options
+  const logout = (options) => {
+    auth0Logout({ 
+      logoutParams: { 
+        returnTo: window.location.origin, 
+        ...options?.logoutParams 
+      },
+      ...options 
+    });
   };
 
-  // The logout function will use Auth0's logout
-  const logout = () => {
-    auth0Logout({ logoutParams: { returnTo: window.location.origin } });
+  // Wrapper for getAccessTokenSilently to simplify its use
+  // The backend team will ensure the 'audience' is correctly configured in Auth0Provider
+  const getAccessToken = async (options) => {
+    try {
+      const token = await getAccessTokenSilently(options);
+      return token;
+    } catch (e) {
+      console.error("Error getting access token from AuthContext:", e);
+      // Handle specific errors, e.g., if consent is required or login is required
+      if (e.error === 'login_required' || e.error === 'consent_required') {
+        // Optionally trigger loginWithRedirect here if appropriate for your UX
+        // loginWithRedirect(); 
+      }
+      throw e; // Re-throw so the caller can handle it
+    }
   };
-
+  
   // Adapt the user object if necessary, or use auth0User directly.
   // For isAdmin, Auth0 roles are often namespaced.
-  // Example: user['https://your-app-namespace/roles'] might be an array like ['admin'].
-  // For simplicity, we'll assume the role is directly on the user object or a specific claim.
-  // You might need to adjust this based on your Auth0 configuration (Rules or Actions).
   const user = isAuthenticated ? auth0User : null;
 
   const isAdmin = () => {
-    // This check needs to be robust based on how roles are set in your Auth0 user profile.
-    // It could be a custom claim like user.role or user['https://your-namespace/roles'].includes('admin')
-    return user && (user.role === 'admin' || (user['https://beysik.com/roles'] && user['https://beysik.com/roles'].includes('admin')));
-  };
-
-  // This function can be used to get an access token for your backend APIs
-  const getAccessToken = async () => {
-    if (isAuthenticated) {
-      try {
-        const token = await getAccessTokenSilently();
-        return token;
-      } catch (e) {
-        console.error("Error getting access token", e);
-        // Handle or throw error
-      }
-    }
-    return null;
+    if (!user) return false;
+    // The backend team should define how roles are namespaced in Auth0.
+    // Example: user['https://beysik.com/roles'] might be an array like ['admin'].
+    const roles = user['https://beysik.com/roles'] || user['http://beysik.com/roles'] || []; // Adjust namespace
+    return roles.includes('admin');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAdmin, loading: isLoading, isAuthenticated, getAccessToken }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login: loginWithRedirect, // Use Auth0's login directly
+      logout, 
+      isAdmin, 
+      loading: isLoading, 
+      isAuthenticated, 
+      getAccessToken,
+      authError: auth0Error
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = function() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
-
-export default AuthContext;

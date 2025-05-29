@@ -16,15 +16,14 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   }
 
   if (!isAuthenticated) {
-    // Redirect them to the /login page, but save the current location they were
-    // trying to go to so we can send them along after they login.
-    // Auth0's loginWithRedirect can also handle appState for this.
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location, message: "Please log in to access this page." }} replace />;
   }
 
   if (adminOnly && !isAdmin()) {
-    // Redirect to a non-authorized page or home if not admin
-    return <Navigate to="/" replace />;
+    // User is authenticated but not an admin
+    return <Navigate to="/unauthorized" state={{ from: location }} replace />; 
+    // Or redirect to home with a message:
+    // return <Navigate to="/" state={{ message: "You are not authorized to view this page." }} replace />;
   }
 
   return children;

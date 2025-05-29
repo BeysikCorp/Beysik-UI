@@ -1,5 +1,7 @@
 // Mock implementation for testing without a backend
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
+
 /**
  * Sends an order to the backend API.
  * @param {Object} order - The order data.
@@ -22,11 +24,10 @@ export async function sendOrderToQueue(order, getAccessToken) {
       return Promise.reject(new Error('Failed to retrieve access token.'));
     }
 
-    // Replace with your actual API endpoint
-    const apiUrl = '/api/orders'; // EXAMPLE: Make sure this matches your backend
+    const backendApiUrl = `${API_BASE_URL}/orders`; // Example endpoint
     
-    console.log(`Calling API: POST ${apiUrl} with token.`);
-    const response = await fetch(apiUrl, { // Or use axios
+    console.log(`Calling API: POST ${backendApiUrl} with token.`);
+    const response = await fetch(backendApiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

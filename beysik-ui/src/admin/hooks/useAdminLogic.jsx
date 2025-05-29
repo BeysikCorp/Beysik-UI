@@ -1,234 +1,194 @@
 import { useState, useEffect, useCallback } from 'react';
-import allProductsData from '../../data/products.json';
+import { getAllProducts, addProduct as apiAddProduct, updateProduct as apiUpdateProduct, deleteProduct as apiDeleteProduct } from '../../services/productService';
+import { getAllOrders, getOrderById as apiGetOrderById , updateOrderStatus as apiUpdateOrderStatus } from '../../services/orderService'; // Assuming updateOrderStatus exists
+import { getAllUsers, updateUserRole as apiUpdateUserRole, deleteUser as apiDeleteUser } from '../../services/userService'; // Assuming these functions
+import { useAuth } from '../../context/AuthContext'; // Corrected import
 
-const initialNewProductState = {
-  name: '',
-  category: '',
-  price: 0,
-  stock: 0,
-  description: '',
-  listingImages: [],
-  status: 'active',
-  colors: [],
-  sizes: [],
-};
-
-export const useAdminLogic = () => {
-  const [tabValue, setTabValue] = useState(0);
+const useAdminLogic = () => {
+  const { getAccessToken } = useAuth();
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const [editDialog, setEditDialog] = useState(false);
-  const [currentProduct, setCurrentProduct] = useState(null);
-  const [newProductDialog, setNewProductDialog] = useState(false);
-  const [newProductData, setNewProductData] = useState(initialNewProductState);
-  const [viewProductDialog, setViewProductDialog] = useState(false);
-  const [productToView, setProductToView] = useState(null);
+  const fetchData = useCallback(async (serviceFunc, setter, entityName) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('Authentication token not available.');
+      }
+      const data = await serviceFunc(token);
+      setter(data);
+    } catch (err) {
+      console.error(`Error fetching ${entityName}:`, err);
+      setError(`Failed to fetch ${entityName}. ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [getAccessToken]);
 
   useEffect(() => {
-    setTimeout(() => {
-      try {
-        const initialProducts = allProductsData.map(p => ({
-          ...p,
-          id: p.id || `prod-${Math.random().toString(36).substr(2, 9)}`,
-          status: p.status || 'active',
-          listingImages: p.listingImages || (p.listingImage ? [p.listingImage] : []),
-          colors: Array.isArray(p.colors) ? p.colors : (typeof p.colors === 'string' ? p.colors.split(',').map(c => c.trim()).filter(Boolean) : []),
-          sizes: Array.isArray(p.sizes) ? p.sizes : (typeof p.sizes === 'string' ? p.sizes.split(',').map(s => s.trim()).filter(Boolean) : []),
-        }));
-        setProducts(initialProducts);
+    fetchData(getAllProducts, setProducts, 'products');
+    fetchData(getAllOrders, setOrders, 'orders');
+    fetchData(getAllUsers, setUsers, 'users');
+  }, [fetchData]);
 
-        const savedOrders = JSON.parse(localStorage.getItem('beysikOrders') || '[]')
-          .map(order => ({
-            id: order.id || Math.random().toString(36).substring(2, 10),
-            customer: `${order.user?.name || 'Guest User'}`,
-            date: new Date(order.createdAt).toLocaleDateString(),
-            total: parseFloat(order.payment?.total || 0),
-            status: order.status || 'Processing'
-          }));
+  const addProduct = async (productData) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const token = await getAccessToken();
+      // Handle image upload if productData.image is a File object
+      // For now, assuming productData.image is a URL or base64 string
+      // If it's a file, you'd upload it first, get the URL, then save the product
+      
+      // If productData.image is a File object, you might want to upload it first.
+      // This is a placeholder for actual file upload logic.
+      // For now, we assume the image is a data URL or already a URL.
+      // if (productData.image instanceof File) {
+      //   // const imageUrl = await uploadImageToServer(productData.image, token);
+      //   // productData.image = imageUrl; // Or however your backend expects it
+      //   console.warn("Image is a File object - actual upload logic needed here.");
+      // }
 
-        setOrders(savedOrders.length > 0 ? savedOrders : [
-          { id: '1001', customer: 'Jane Doe', total: 145.90, date: '2023-10-15', status: 'Delivered' },
-          { id: '1002', customer: 'John Smith', total: 89.75, date: '2023-10-17', status: 'Shipped' },
-          { id: '1003', customer: 'Alice Johnson', total: 210.50, date: '2023-10-18', status: 'Processing' }
-        ]);
 
-        setUsers([
-          { id: '101', name: 'Jane Doe', email: 'jane@example.com', role: 'customer', joinDate: '2023-09-01' },
-          { id: '102', name: 'John Smith', email: 'john@example.com', role: 'customer', joinDate: '2023-09-15' },
-          { id: '103', name: 'Admin User', email: 'admin@beysik.com', role: 'admin', joinDate: '2023-08-01' }
-        ]);
-        setLoading(false);
-      } catch (err) {
-        setError('Failed to load initial data.');
-        setLoading(false);
-        console.error(err);
-      }
-    }, 1000);
-  }, []);
-
-  const handleTabChange = useCallback((event, newValue) => {
-    setTabValue(newValue);
-  }, []);
-
-  const handleImageChange = useCallback((event, isNewProduct = false) => {
-    const files = Array.from(event.target.files);
-    if (!files.length) return;
-
-    const processFiles = (currentImagesStateSetter) => {
-      const imagePromises = files.map(file => {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-      });
-
-      Promise.all(imagePromises).then(newImageDataUrls => {
-        currentImagesStateSetter(prev => ({
-          ...prev,
-          listingImages: [...(prev.listingImages || []), ...newImageDataUrls]
-        }));
-      }).catch(err => console.error("Error reading files:", err));
-    };
-
-    if (isNewProduct) {
-      processFiles(setNewProductData);
-    } else if (currentProduct) {
-      processFiles(setCurrentProduct);
+      const newProduct = await apiAddProduct(productData, token);
+      setProducts(prev => [...prev, newProduct]);
+      return newProduct;
+    } catch (err) {
+      console.error('Error adding product:', err);
+      setError(`Failed to add product. ${err.message}`);
+      throw err; // Re-throw to allow form to handle it
+    } finally {
+      setIsLoading(false);
     }
-    event.target.value = null;
-  }, [currentProduct]);
+  };
 
-  const handleRemoveImage = useCallback((index, isNewProduct) => {
-    if (isNewProduct) {
-      setNewProductData(prev => ({
-        ...prev,
-        listingImages: prev.listingImages.filter((_, i) => i !== index)
-      }));
-    } else {
-      setCurrentProduct(prev => ({
-        ...prev,
-        listingImages: prev.listingImages.filter((_, i) => i !== index)
-      }));
+  const updateProduct = async (productId, productData) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const token = await getAccessToken();
+      // Similar to addProduct, handle image if it's a new file
+      // if (productData.image instanceof File) {
+      //   // const imageUrl = await uploadImageToServer(productData.image, token);
+      //   // productData.image = imageUrl;
+      //    console.warn("Image is a File object - actual upload logic needed here for update.");
+      // }
+      const updatedProduct = await apiUpdateProduct(productId, productData, token);
+      setProducts(prev => prev.map(p => p._id === productId ? updatedProduct : p));
+      return updatedProduct;
+    } catch (err) {
+      console.error('Error updating product:', err);
+      setError(`Failed to update product. ${err.message}`);
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  };
 
-  const handleOpenEditProduct = useCallback((product) => {
-    setCurrentProduct({
-      ...product,
-      listingImages: Array.isArray(product.listingImages) ? product.listingImages : (product.listingImage ? [product.listingImage] : []),
-      colors: Array.isArray(product.colors) ? product.colors : [],
-      sizes: Array.isArray(product.sizes) ? product.sizes : [],
-    });
-    setEditDialog(true);
-  }, []);
-
-  const handleSaveProduct = useCallback(() => {
-    if (!currentProduct) return;
-    setProducts(prevProducts =>
-      prevProducts.map(p => (p.id === currentProduct.id ? { ...currentProduct } : p))
-    );
-    setEditDialog(false);
-    setCurrentProduct(null);
-  }, [currentProduct]);
-
-  const handleProductChange = useCallback((e) => {
-    const { name, value } = e.target;
-    setCurrentProduct(prev => ({
-      ...prev,
-      [name]: name === 'price' || name === 'stock' ? parseFloat(value) || 0 : value
-    }));
-  }, []);
+  const deleteProduct = async (productId) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const token = await getAccessToken();
+      await apiDeleteProduct(productId, token);
+      setProducts(prev => prev.filter(p => p._id !== productId));
+    } catch (err) {
+      console.error('Error deleting product:', err);
+      setError(`Failed to delete product. ${err.message}`);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
-  const handleCurrentProductAutocompleteChange = useCallback((field, newValue) => {
-    setCurrentProduct(prev => ({
-      ...prev,
-      [field]: newValue
-    }));
-  }, []);
+  const getOrderById = async (orderId) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const token = await getAccessToken();
+      const order = await apiGetOrderById(orderId, token);
+      // Potentially update a local state for a single viewed order or just return
+      return order;
+    } catch (err) {
+      console.error(`Error fetching order ${orderId}:`, err);
+      setError(`Failed to fetch order ${orderId}. ${err.message}`);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const handleOpenNewProductDialog = useCallback(() => {
-    setNewProductData({
-        ...initialNewProductState,
-        listingImages: [], 
-        colors: [],
-        sizes: [],
-    });
-    setNewProductDialog(true);
-  }, []);
 
-  const handleNewProductChange = useCallback((e) => {
-    const { name, value } = e.target;
-    setNewProductData(prev => ({
-      ...prev,
-      [name]: name === 'price' || name === 'stock' ? parseFloat(value) || 0 : value
-    }));
-  }, []);
+  const updateOrderStatus = async (orderId, status) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const token = await getAccessToken();
+      const updatedOrder = await apiUpdateOrderStatus(orderId, status, token);
+      setOrders(prev => prev.map(o => o._id === orderId ? updatedOrder : o));
+      return updatedOrder;
+    } catch (err) {
+      console.error('Error updating order status:', err);
+      setError(`Failed to update order status. ${err.message}`);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const handleNewProductAutocompleteChange = useCallback((field, newValue) => {
-    setNewProductData(prev => ({
-      ...prev,
-      [field]: newValue
-    }));
-  }, []);
+  const updateUserRole = async (userId, role) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const token = await getAccessToken();
+      const updatedUser = await apiUpdateUserRole(userId, role, token);
+      setUsers(prev => prev.map(u => u._id === userId ? { ...u, role: updatedUser.role } : u)); // Assuming backend returns updated user or just role
+      return updatedUser;
+    } catch (err) {
+      console.error('Error updating user role:', err);
+      setError(`Failed to update user role. ${err.message}`);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const handleAddNewProduct = useCallback(() => {
-    const newId = `prod-${Math.random().toString(36).substr(2, 9)}`;
-    const productToAdd = {
-      ...newProductData,
-      id: newId,
-    };
-    setProducts(prevProducts => [productToAdd, ...prevProducts]);
-    setNewProductDialog(false);
-  }, [newProductData]);
-
-  const handleOpenViewProduct = useCallback((product) => {
-    setProductToView(product);
-    setViewProductDialog(true);
-  }, []);
-
-  const handleToggleProductStatus = useCallback((productId) => {
-    setProducts(prevProducts =>
-      prevProducts.map(p =>
-        p.id === productId ? { ...p, status: p.status === 'active' ? 'archived' : 'active' } : p
-      )
-    );
-  }, []);
-
-  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
-  const pendingOrders = orders.filter(order => order.status === 'Processing').length;
+  const deleteUser = async (userId) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const token = await getAccessToken();
+      await apiDeleteUser(userId, token);
+      setUsers(prev => prev.filter(u => u._id !== userId));
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      setError(`Failed to delete user. ${err.message}`);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return {
-    tabValue, handleTabChange,
-    products, setProducts,
+    products,
     orders,
     users,
-    loading,
+    isLoading,
     error,
-    editDialog, setEditDialog,
-    currentProduct, setCurrentProduct,
-    newProductDialog, setNewProductDialog,
-    newProductData, setNewProductData, initialNewProductState,
-    viewProductDialog, setViewProductDialog,
-    productToView, setProductToView,
-    handleImageChange,
-    handleRemoveImage,
-    handleOpenEditProduct,
-    handleSaveProduct,
-    handleProductChange,
-    handleCurrentProductAutocompleteChange,
-    handleOpenNewProductDialog,
-    handleNewProductChange,
-    handleNewProductAutocompleteChange,
-    handleAddNewProduct,
-    handleOpenViewProduct,
-    handleToggleProductStatus,
-    totalRevenue,
-    pendingOrders
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    getOrderById,
+    updateOrderStatus,
+    updateUserRole,
+    deleteUser,
+    fetchData, // Expose fetchData if needed for manual refresh
   };
 };
+
+export default useAdminLogic;
