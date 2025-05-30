@@ -1,52 +1,79 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useContext } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const {
+    loginWithRedirect,
+    logout: auth0Logout,
+    user: auth0User,
+    isAuthenticated,
+    isLoading,
+    getAccessTokenSilently,
+    error: auth0Error,
+  } = useAuth0();
 
-  // Check for existing auth on mount
-  useEffect(() => {
-    const storedUser = localStorage.getItem('beysikUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+  // Wrapper for logout to include Auth0's options
+  const logout = (options) => {
+    auth0Logout({ 
+      logoutParams: { 
+        returnTo: window.location.origin, 
+        ...options?.logoutParams 
+      },
+      ...options 
+    });
+  };
+
+  // Wrapper for getAccessTokenSilently to simplify its use
+  // The backend team will ensure the 'audience' is correctly configured in Auth0Provider
+  const getAccessToken = async (options) => {
+    try {
+      const token = await getAccessTokenSilently(options);
+      return token;
+    } catch (e) {
+      console.error("Error getting access token from AuthContext:", e);
+      // Handle specific errors, e.g., if consent is required or login is required
+      if (e.error === 'login_required' || e.error === 'consent_required') {
+        // Optionally trigger loginWithRedirect here if appropriate for your UX
+        // loginWithRedirect(); 
+      }
+      throw e; // Re-throw so the caller can handle it
     }
-    setLoading(false);
-  }, []);
-
-  // Login function
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('beysikUser', JSON.stringify(userData));
-    return true;
   };
+  
+  // Adapt the user object if necessary, or use auth0User directly.
+  // For isAdmin, Auth0 roles are often namespaced.
+  const user = isAuthenticated ? auth0User : null;
 
-  // Logout function
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('beysikUser');
-  };
-
-  // Check if user is admin
   const isAdmin = () => {
-    return user && user.role === 'admin';
+    if (!user) return false;
+    // The backend team should define how roles are namespaced in Auth0.
+    // Example: user['https://beysik.com/roles'] might be an array like ['admin'].
+    const roles = user['https://beysik.com/roles'] || user['http://beysik.com/roles'] || []; // Adjust namespace
+    return roles.includes('admin');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAdmin, loading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login: loginWithRedirect, // Use Auth0's login directly
+      logout, 
+      isAdmin, 
+      loading: isLoading, 
+      isAuthenticated, 
+      getAccessToken,
+      authError: auth0Error
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Custom hook for using auth context
-export const useAuth = function() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
-
-export default AuthContext;

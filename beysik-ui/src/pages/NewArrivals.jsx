@@ -1,31 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/product-pages.css';
-import allProducts from '../data/products.json';
+// import allProducts from '../data/products.json'; // Remove mock data import
+import { getProducts } from '../services/productService'; // Import the service
+import { CircularProgress, Box, Typography } from '@mui/material'; // For loading/error states
 
 const NewArrivals = () => {
-  const [products, setProducts] = useState([]);
+  const [allFetchedProducts, setAllFetchedProducts] = useState([]); // Store all products fetched for this page type
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [filter, setFilter] = useState('All');
+  const [filter, setFilter] = useState('All'); // Corresponds to category
   const [sort, setSort] = useState('Newest');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Filter products tagged as 'new-arrival'
-    const newArrivalItems = allProducts.filter(p => p.tags && p.tags.includes('new-arrival'));
-    setProducts(newArrivalItems);
-    setFilteredProducts(newArrivalItems);
+    const fetchNewArrivals = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Assuming your backend API can filter by a tag or specific endpoint for new arrivals
+        const newArrivalItems = await getProducts({ tag: 'new-arrival' });
+        setAllFetchedProducts(newArrivalItems);
+        setFilteredProducts(newArrivalItems); // Initially, all fetched products are shown
+      } catch (err) {
+        console.error("Failed to fetch new arrivals:", err);
+        setError(err.message || "Could not load new arrivals.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNewArrivals();
   }, []);
 
   // Handle filtering and sorting changes
   useEffect(() => {
-    let result = [...products];
+    let result = [...allFetchedProducts];
     
-    // Apply category filter
     if (filter !== 'All') {
-      result = result.filter(p => p.category === filter);
+      result = result.filter(p => p.category === filter); // Ensure your product objects have a 'category' field
     }
     
-    // Apply sorting
     switch (sort) {
       case 'PriceLow':
         result.sort((a, b) => a.price - b.price);
@@ -35,12 +50,14 @@ const NewArrivals = () => {
         break;
       case 'Newest':
       default:
-        // Assuming products are already in "newest first" order from the API
+        // Assuming products from API are already sorted by newest or have a date field
+        // If products have a 'createdAt' or similar date field:
+        // result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         break;
     }
     
     setFilteredProducts(result);
-  }, [filter, sort, products]);
+  }, [filter, sort, allFetchedProducts]);
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value);
@@ -49,6 +66,23 @@ const NewArrivals = () => {
   const handleSortChange = (e) => {
     setSort(e.target.value);
   };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh', flexDirection: 'column' }}>
+        <Typography color="error" variant="h6">Failed to load products.</Typography>
+        <Typography color="error">Details: {error}</Typography>
+      </Box>
+    );
+  }
 
   return (
     <div className="product-page">

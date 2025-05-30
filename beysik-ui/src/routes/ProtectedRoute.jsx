@@ -1,29 +1,31 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { CircularProgress, Box } from '@mui/material';
 
-// This component handles routes that require authentication
 const ProtectedRoute = ({ children, adminOnly = false }) => {
-  const { user, isAdmin, loading } = useAuth();
+  const { isAuthenticated, isAdmin, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
-    // Return a loading spinner or placeholder if still checking auth
-    return <div>Loading...</div>;
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
-  // If adminOnly is true, check if the user is an admin
-  if (adminOnly && (!user || !isAdmin())) {
-    // Redirect to login with the current location in state
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location, message: "Please log in to access this page." }} replace />;
   }
 
-  // For regular protected routes, just check if user exists
-  if (!adminOnly && !user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  if (adminOnly && !isAdmin()) {
+    // User is authenticated but not an admin
+    return <Navigate to="/unauthorized" state={{ from: location }} replace />; 
+    // Or redirect to home with a message:
+    // return <Navigate to="/" state={{ message: "You are not authorized to view this page." }} replace />;
   }
 
-  // If all checks pass, render the children component
   return children;
 };
 
