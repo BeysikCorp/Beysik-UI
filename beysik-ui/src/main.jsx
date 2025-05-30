@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { Auth0Provider } from '@auth0/auth0-react';
 import { AuthProvider } from './context/AuthContext'; // Your custom AuthContext
+import { CartProvider } from './context/CartContext'; // Import CartProvider
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme'; // Your MUI theme
@@ -33,9 +34,11 @@ root.render(
         cacheLocation="localstorage" // Recommended for SPAs
       >
         <AuthProvider> {/* Your custom AuthProvider that uses useAuth0 */}
-          <ThemeProvider theme={theme}>
-            <App />
-          </ThemeProvider>
+          <CartProvider> {/* Wrap App with CartProvider */}
+            <ThemeProvider theme={theme}>
+              <App />
+            </ThemeProvider>
+          </CartProvider>
         </AuthProvider>
       </Auth0Provider>
     </BrowserRouter>

@@ -11,10 +11,15 @@ import '../styles/navbar.css';
 import hLogo from '../assets/Logo/hLogo.png';
 import CartModal from './cartModal.jsx';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 
-function Navbar({ cartItems = [], cartOpen, setCartOpen, onRemoveItem, onUpdateQuantity, onCheckout }) {
+function Navbar() {
   const { user, logout, isAdmin } = useAuth();
-  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const { 
+    cartItems, 
+    itemCount, 
+  } = useCart();
+
   const navigate = useNavigate();
   
   // For account menu
@@ -33,6 +38,21 @@ function Navbar({ cartItems = [], cartOpen, setCartOpen, onRemoveItem, onUpdateQ
     logout();
     handleClose();
     navigate('/');
+  };
+
+  const [isCartModalOpen, setIsCartModalOpen] = useState(false); // State for CartModal visibility
+  
+  const handleOpenCartModal = () => {
+    setIsCartModalOpen(true);
+  };
+  
+  const handleCloseCartModal = () => {
+    setIsCartModalOpen(false);
+  };
+  
+  const handleCheckout = () => {
+    handleCloseCartModal();
+    navigate('/checkout'); // Navigate to checkout page
   };
 
   return (
@@ -98,21 +118,21 @@ function Navbar({ cartItems = [], cartOpen, setCartOpen, onRemoveItem, onUpdateQ
                 </>
               )}
             </Menu>
-            <IconButton aria-label="cart" className="icon-button" onClick={() => setCartOpen(true)}>
-              <Badge badgeContent={cartCount} color="primary">
+            <IconButton aria-label="cart" className="icon-button" onClick={handleOpenCartModal}>
+              <Badge badgeContent={itemCount} color="primary"> {/* Use itemCount from CartContext */}
                 <ShoppingCartOutlinedIcon />
               </Badge>
             </IconButton>
           </div>
         </div>
       </header>
+      {/* CartModal now manages its data via CartContext */}
       <CartModal 
-        isOpen={cartOpen} 
-        onClose={() => setCartOpen(false)} 
-        cartItems={cartItems} 
-        onRemoveItem={onRemoveItem}
-        onUpdateQuantity={onUpdateQuantity}
-        onCheckout={onCheckout} 
+        isOpen={isCartModalOpen} 
+        onClose={handleCloseCartModal} 
+        onCheckout={handleCheckout} // Pass checkout handler
+        // cartItems, onRemoveItem, onUpdateQuantity are no longer passed as props
+        // They will be accessed from CartContext within CartModal itself
       />
     </>
   );

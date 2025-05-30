@@ -5,7 +5,8 @@ import { getAllProducts } from '../services/productService';
 import '../styles/product-pages.css';
 
 const Collections = () => {
-  const [collectionsProducts, setCollectionsProducts] = useState([]);
+  const [allCollectionProducts, setAllCollectionProducts] = useState([]); // Renamed for clarity
+  const [displayedProducts, setDisplayedProducts] = useState([]); // For products to display after filter/sort
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('All');
@@ -16,9 +17,20 @@ const Collections = () => {
       try {
         setIsLoading(true);
         setError(null);
-        const allProducts = await getAllProducts();
-        const filteredProducts = allProducts.filter(p => p.category && p.category.toLowerCase() === 'collections');
-        setCollectionsProducts(filteredProducts);
+        const allProductsFromApi = await getAllProducts();
+
+        if (!Array.isArray(allProductsFromApi)) {
+          throw new Error("API did not return an array of products.");
+        }
+
+        // Client-side filtering for 'collections' tag
+        // Assuming product.tags is an array of strings
+        const filteredCollectionItems = allProductsFromApi.filter(
+          product => product.tags && Array.isArray(product.tags) && product.tags.includes('collections')
+        );
+
+        setAllCollectionProducts(filteredCollectionItems); // Set the source list
+        setDisplayedProducts(filteredCollectionItems);    // Initially display all fetched collection items
       } catch (err) {
         console.error("Error fetching collection products:", err);
         setError(err.message || "Failed to load products.");
@@ -32,9 +44,9 @@ const Collections = () => {
 
   // Handle filtering and sorting changes
   useEffect(() => {
-    let result = [...collectionsProducts];
+    let result = [...allCollectionProducts]; // Start with the source list of all collection products
     
-    // Apply category filter
+    // Apply secondary category filter
     if (filter !== 'All') {
       result = result.filter(p => p.category === filter);
     }
@@ -53,8 +65,8 @@ const Collections = () => {
         break;
     }
     
-    setCollectionsProducts(result);
-  }, [filter, sort, collectionsProducts]);
+    setDisplayedProducts(result); // Update the list for display
+  }, [filter, sort, allCollectionProducts]); // Dependency on the source list
  
   const handleFilterChange = (e) => {
     setFilter(e.target.value);
@@ -72,18 +84,16 @@ const Collections = () => {
     return <div className="error-state">Error: {error}</div>;
   }
 
-  if (collectionsProducts.length === 0) {
-    return <div className="empty-state">No collection products found at the moment.</div>;
-  }
+  // Message for no products matching criteria will be handled by checking displayedProducts.length in JSX
 
   return (
     <div className="product-page">
       <div className="container">
         <div className="page-header">
-          <h2 className="page-title">New Arrivals</h2>
+          <h2 className="page-title">Collections</h2>
           <div className="breadcrumb">
             <Link to="/" className="breadcrumb-link">Home</Link> &gt; 
-            <span className="breadcrumb-current">New Arrivals</span>
+            <span className="breadcrumb-current">Collections</span>
           </div>
         </div>
 
@@ -116,23 +126,9 @@ const Collections = () => {
         </div>
 
         <div className="product-grid">
-          {collectionsProducts.length > 0 ? (
-            collectionsProducts.map((product) => (
-              <div className="product-card" key={product.id}>
-                <Link to={`/product/${product.id}`} className="product-link">
-                  <div className="product-image-container">
-                    <img
-                      src={product.listingImage}
-                      alt={product.name}
-                      className="product-image"
-                    />
-                  </div>
-                  <div className="product-content">
-                    <h3 className="product-name">{product.name}</h3>
-                    <p className="product-price">${product.price.toFixed(2)}</p>
-                  </div>
-                </Link>
-              </div>
+          {displayedProducts.length > 0 ? (
+            displayedProducts.map((product) => (
+              <ProductCard key={product._id || product.id} product={product} />
             ))
           ) : (
             <div className="no-products-message">

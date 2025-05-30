@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/product-pages.css';
 // import allProducts from '../data/products.json'; // Remove mock data import
-import { getProducts } from '../services/productService'; // Import the service
+import { getAllProducts } from '../services/productService'; // Import the service
 import { CircularProgress, Box, Typography } from '@mui/material'; // For loading/error states
 import ProductCard from '../../components/ProductCard'; // Import ProductCard
 
@@ -19,12 +19,26 @@ const NewArrivals = () => {
       setLoading(true);
       setError(null);
       try {
-        // Assuming your backend API can filter by a tag or specific endpoint for new arrivals
-        const newArrivalItems = await getProducts({ tag: 'new-arrival' });
+        // Fetch all products. The backend might or might not filter by tag.
+        // We will ensure client-side filtering for 'new-arrival'.
+        const allProductsFromApi = await getAllProducts(); // Removed { tag: 'new-arrival' } to rely on client filtering or if backend doesn't support it well.
+                                                          // If backend DOES support it, passing the tag is still fine and can optimize.
+                                                          // For now, let's assume client must filter.
+
+        if (!Array.isArray(allProductsFromApi)) {
+          throw new Error("API did not return an array of products.");
+        }
+
+        // Client-side filtering for 'new-arrival' tag
+        // Assuming product.tags is an array of strings
+        const newArrivalItems = allProductsFromApi.filter(
+          product => product.tags && Array.isArray(product.tags) && product.tags.includes('new-arrival')
+        );
+
         setAllFetchedProducts(newArrivalItems);
-        setFilteredProducts(newArrivalItems); // Initially, all fetched products are shown
+        setFilteredProducts(newArrivalItems); // Initially, all fetched new arrivals are shown
       } catch (err) {
-        console.error("Failed to fetch new arrivals:", err);
+        console.error("Failed to fetch or filter new arrivals:", err);
         setError(err.message || "Could not load new arrivals.");
       } finally {
         setLoading(false);
