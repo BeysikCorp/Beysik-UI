@@ -4,6 +4,7 @@ import '../styles/product-pages.css';
 // import allProducts from '../data/products.json'; // Remove mock data import
 import { getProducts } from '../services/productService'; // Import the service
 import { CircularProgress, Box, Typography } from '@mui/material'; // For loading/error states
+import ProductCard from '../../components/ProductCard'; // Import ProductCard
 
 const NewArrivals = () => {
   const [allFetchedProducts, setAllFetchedProducts] = useState([]); // Store all products fetched for this page type
@@ -126,22 +127,7 @@ const NewArrivals = () => {
         <div className="product-grid" role="region" aria-label="Product gallery">
           {filteredProducts.length > 0 ? (
             filteredProducts.map((product) => (
-              <div className="product-card" key={product.id}>
-                <Link to={`/product/${product.id}`} className="product-link">
-                  <div className="product-image-container">
-                    <img
-                      src={product.listingImage}
-                      alt={product.name}
-                      className="product-image"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className="product-content">
-                    <h3 className="product-name">{product.name}</h3>
-                    <p className="product-price">${product.price.toFixed(2)}</p>
-                  </div>
-                </Link>
-              </div>
+              <ProductCard key={product.id} product={product} />
             ))
           ) : (
             <div className="no-products-message">
