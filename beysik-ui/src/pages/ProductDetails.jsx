@@ -4,28 +4,27 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import '../styles/product-details.css';
-import { getProductById } from '../services/productService'; // Importing the productService
-import { useCart } from '../context/CartContext'; // Assuming you have a CartContext
+import { getProductById } from '../services/productService';
+import { useCart } from '../context/CartContext'; // Import useCart
 
 const ProductDetailsPage = () => {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState('');
-  const [selectedSize, setSelectedSize] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const { addToCart } = useCart(); // Use the addToCart function from CartContext
+  const { addToCart, loading: cartLoading, error: cartError } = useCart(); // Get addToCart and loading/error states from CartContext
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
+      setIsLoading(true);
+      setError(null);
       try {
-        // productId from useParams might be a string, ensure your service handles it or convert to number if needed
         const fetchedProduct = await getProductById(productId);
         setProduct(fetchedProduct);
-        setSelectedImage(fetchedProduct.images[0]);
-        setSelectedSize(fetchedProduct.availableSizes[0]);
-        setSelectedColor(fetchedProduct.availableColors[0].name);
+        setSelectedImage(fetchedProduct.imageUrl || ''); 
       } catch (err) {
         console.error(`Error fetching product ${productId}:`, err);
         setError(err.message || "Failed to load product details.");
@@ -39,40 +38,34 @@ const ProductDetailsPage = () => {
     }
   }, [productId]);
 
-  const handleThumbnailClick = (imageSrc) => {
-    setSelectedImage(imageSrc);
-  };
+  const handleAddToCart = async () => { // Make async if addToCart is async
+    if (!product) return;
 
-  const handleAddToCart = () => {
-    if (!selectedSize) {
-      alert('Please select a size.');
-      return;
-    }
-    if (!selectedColor) {
-      alert('Please select a color.');
-      return;
-    }
-    // Call the prop function to add to cart
-    if (typeof addToCart === 'function') {
-      addToCart({
-        id: product.id,
-        name: product.name,
-        image: selectedImage,
-        size: selectedSize,
-        color: selectedColor,
-        quantity,
-        price: product.price,
-      });
-      alert(`${quantity} x ${product.name} added to cart!`);
+    // Construct the item to add. 
+    // The product object from getProductById should have: id, name, imageUrl, price, size.
+    // CartContext's addToCart expects (product, quantity)
+    // product should be an object like: { id, name, image, price, size (if applicable) }
+    const itemToAdd = {
+      id: product.id,
+      name: product.name,
+      image: product.imageUrl, // Ensure this matches what ProductCard and CartModal expect
+      price: product.price,
+      size: product.size, // Include size if it's relevant for the cart item's identity
+    };
+
+    try {
+      await addToCart(itemToAdd, quantity);
+      alert(`${quantity} x ${product.name} (Size: ${product.size || 'N/A'}) added to cart!`);
+    } catch (err) {
+      alert(`Failed to add item to cart. ${err.message}`);
     }
   };
 
   const handleWishlistToggle = () => {
     setIsWishlisted(!isWishlisted);
-    // Add actual wishlist logic here
   };
 
-  if (!product) {
+  if (isLoading) {
     return (
       <div className="product-page">
         <div className="container">
@@ -82,20 +75,25 @@ const ProductDetailsPage = () => {
     );
   }
 
-  // Generate star rating display
-  const renderRating = (rating) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      if (i <= rating) {
-        stars.push(<span key={i} className="star filled">★</span>);
-      } else if (i - 0.5 <= rating) {
-        stars.push(<span key={i} className="star half-filled">★</span>);
-      } else {
-        stars.push(<span key={i} className="star">★</span>);
-      }
-    }
-    return stars;
-  };
+  if (error) {
+    return (
+      <div className="product-page">
+        <div className="container">
+          <p className="error-text">Error: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="product-page">
+        <div className="container">
+          <p className="error-text">Product not found.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="product-page">
@@ -104,8 +102,8 @@ const ProductDetailsPage = () => {
           <h2 className="page-title">{product.name}</h2>
           <div className="breadcrumb">
             <Link to="/" className="breadcrumb-link">Home</Link> &gt;
-            <Link to={`/${product.category?.toLowerCase().replace(' ', '-')}`} className="breadcrumb-link">
-              {product.category}
+            <Link to={`/${product.category?.toLowerCase().replace(/\s+/g, '-') || 'products'}`} className="breadcrumb-link">
+              {product.category || 'Category'}
             </Link> &gt;
             <span className="breadcrumb-current">{product.name}</span>
           </div>
@@ -113,74 +111,24 @@ const ProductDetailsPage = () => {
 
         <div className="product-paper">
           <div className="product-grid">
-            {/* Image Gallery */}
             <div className="product-images">
               <div className="main-image">
-                <img src={selectedImage} alt={product.name} />
-              </div>
-              <div className="thumbnails">
-                {product.thumbnails.map((thumb, index) => (
-                  <div 
-                    key={index} 
-                    className={`thumbnail ${product.images[index] === selectedImage ? 'active' : ''}`}
-                    onClick={() => handleThumbnailClick(product.images[index])}
-                  >
-                    <img 
-                      src={thumb} 
-                      alt={`${product.name} thumbnail ${index + 1}`} 
-                    />
-                  </div>
-                ))}
+                <img src={selectedImage || '/placeholder-image.jpg'} alt={product.name} />
               </div>
             </div>
 
-            {/* Product Info & Actions */}
             <div className="product-info">
               <h1 className="product-title">{product.name}</h1>
-              
-              <div className="rating-section">
-                <div className="rating">
-                  {renderRating(product.rating)}
-                </div>
-                <span className="rating-count">({product.reviewsCount} reviews)</span>
-              </div>
 
               <div className="price">
-                ${product.price.toFixed(2)}
-                {product.originalPrice && (
-                  <span className="original-price">${product.originalPrice.toFixed(2)}</span>
-                )}
+                ${product.price ? product.price.toFixed(2) : 'N/A'}
               </div>
 
-              <p className="product-description">{product.description}</p>
+              <p className="product-description">{product.description || 'No description available.'}</p>
 
-              {product.availableColors.length > 0 && (
-                <div className="color-selection">
-                  <p className="option-label">Color: {selectedColor}</p>
-                  <div className="color-options">
-                    {product.availableColors.map((color) => (
-                      <div
-                        key={color.name}
-                        className={`color-swatch ${selectedColor === color.name ? 'active' : ''}`}
-                        style={{ backgroundColor: color.hex }}
-                        onClick={() => setSelectedColor(color.name)}
-                        title={color.name}
-                      ></div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {product.availableSizes.length > 0 && (
-                <div className="size-selection">
-                  <p className="option-label">Size:</p>
-                  <div className="size-select">
-                    <select value={selectedSize} onChange={(e) => setSelectedSize(e.target.value)}>
-                      {product.availableSizes.map((size) => (
-                        <option key={size} value={size}>{size}</option>
-                      ))}
-                    </select>
-                  </div>
+              {product.size && (
+                <div className="size-info">
+                  <p className="option-label">Size: {product.size}</p>
                 </div>
               )}
 
@@ -192,7 +140,7 @@ const ProductDetailsPage = () => {
                   value={quantity}
                   onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                   min="1"
-                  max={product.stock || 10}
+                  max={product.stock > 0 ? product.stock : 1}
                 />
               </div>
 
@@ -200,10 +148,10 @@ const ProductDetailsPage = () => {
                 <button 
                   className="add-to-cart-btn" 
                   onClick={handleAddToCart}
-                  disabled={product.stock === 0}
+                  disabled={product.stock === 0 || cartLoading} // Disable if cart operation is in progress
                 >
                   <AddShoppingCartIcon className="btn-icon" />
-                  {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                  {product.stock === 0 ? 'Out of Stock' : (cartLoading ? 'Adding...' : 'Add to Cart')}
                 </button>
                 
                 <button className="wishlist-btn" onClick={handleWishlistToggle}>
@@ -224,22 +172,17 @@ const ProductDetailsPage = () => {
 
           <div className="divider"></div>
 
-          {/* Product Details Section */}
           <div className="product-details">
             <h3 className="section-title">Product Details</h3>
-            <ul className="details-list">
-              {product.details.map((detail, index) => (
-                <li key={index} className="detail-item">{detail}</li>
-              ))}
-            </ul>
+            <p>{product.description || 'Detailed information not available.'}</p>
           </div>
 
           <div className="divider"></div>
 
-          {/* Reviews Section (Placeholder) */}
           <div className="reviews-section">
             <h3 className="section-title">Customer Reviews</h3>
             <p>Reviews will be displayed here.</p>
+            {cartError && <p className="error-text" style={{color: 'red'}}>Cart Error: {cartError}</p>} {/* Display cart error */}
           </div>
         </div>
       </div>

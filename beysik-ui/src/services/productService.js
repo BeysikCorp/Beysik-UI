@@ -1,22 +1,32 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001/api"; // Adjusted for Vite and consistency
 
+// Consistent and more detailed error object
+class ApiError extends Error {
+  constructor(message, status, details) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.details = details;
+  }
+}
+
 // Consistent response handler
 const handleResponse = async (response) => {
   if (!response.ok) {
-    // Try to parse error response as JSON, otherwise use statusText
     let errorMessage = response.statusText;
+    let errorDetails = null;
     try {
       const errorData = await response.json();
-      errorMessage = errorData.message || errorData.title || JSON.stringify(errorData); // ASP.NET Core might use title for validation errors
+      errorMessage = errorData.message || errorData.title || JSON.stringify(errorData); 
+      errorDetails = errorData;
     } catch (e) {
-      // If parsing fails, stick with statusText or try to read as plain text
       try {
         errorMessage = await response.text() || response.statusText;
       } catch (textError) {
         // Fallback if text() also fails
       }
     }
-    throw new Error(`API error: ${response.status} ${errorMessage}`);
+    throw new ApiError(errorMessage, response.status, errorDetails);
   }
   // For 204 No Content or other methods that might not return JSON
   if (response.status === 204 || response.headers.get("content-length") === "0") {
@@ -39,16 +49,16 @@ const handleResponse = async (response) => {
  */
 export const getAllProducts = async (params = {}) => { // Renamed from getProducts
   const query = new URLSearchParams(params).toString();
-  // The C# controller uses route [HttpGet("/products")] directly, not /api/ProductCatalog/products
   const url = `${API_BASE_URL}/products${query ? `?${query}` : ''}`; 
   try {
     console.log(`Fetching products from: ${url}`);
     const response = await fetch(url);
-    // No token needed for public product listing as per C# controller
     return handleResponse(response);
   } catch (error) {
-    console.error("Error in getAllProducts:", error);
-    throw error;
+    console.error("Error in getAllProducts:", error.message, error.status ? `Status: ${error.status}` : '', error.details ? `Details: ${JSON.stringify(error.details)}` : '');
+    // Re-throw the original error (if it's an ApiError) or a new one for other types
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(error.message || 'Failed to fetch products', error.status || 500);
   }
 };
 
@@ -58,16 +68,15 @@ export const getAllProducts = async (params = {}) => { // Renamed from getProduc
  * @returns {Promise<Object>} - A promise that resolves to the product object.
  */
 export const getProductById = async (productId) => {
-  // The C# controller uses route [HttpGet("/products/{id:length(24)}")]
   const url = `${API_BASE_URL}/products/${productId}`;
   try {
     console.log(`Fetching product by ID from: ${url}`);
     const response = await fetch(url);
-    // No token needed for public product listing
     return handleResponse(response);
   } catch (error) {
-    console.error(`Error in getProductById for ${productId}:`, error);
-    throw error;
+    console.error(`Error in getProductById for ${productId}:`, error.message, error.status ? `Status: ${error.status}` : '', error.details ? `Details: ${JSON.stringify(error.details)}` : '');
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(error.message || `Failed to fetch product ${productId}`, error.status || 500);
   }
 };
 
@@ -77,8 +86,7 @@ export const getProductById = async (productId) => {
  * @param {string} token - Auth0 access token.
  * @returns {Promise<Object>} - A promise that resolves to the created product object.
  */
-export const addProduct = async (productData, token) => { // Renamed from createProduct for consistency with useAdminLogic
-  // The C# controller uses route [HttpPost("/products")]
+export const addProduct = async (productData, token) => { 
   const url = `${API_BASE_URL}/products`;
   try {
     const response = await fetch(url, {
@@ -91,8 +99,9 @@ export const addProduct = async (productData, token) => { // Renamed from create
     });
     return handleResponse(response);
   } catch (error) {
-    console.error("Error in addProduct:", error);
-    throw error;
+    console.error("Error in addProduct:", error.message, error.status ? `Status: ${error.status}` : '', error.details ? `Details: ${JSON.stringify(error.details)}` : '');
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(error.message || 'Failed to add product', error.status || 500);
   }
 };
 
@@ -104,7 +113,6 @@ export const addProduct = async (productData, token) => { // Renamed from create
  * @returns {Promise<Object>} - A promise that resolves to the updated product object (or null if 204).
  */
 export const updateProduct = async (productId, productData, token) => {
-  // The C# controller uses route [HttpPut("/products/{id:length(24)}")]
   const url = `${API_BASE_URL}/products/${productId}`;
   try {
     const response = await fetch(url, {
@@ -115,10 +123,11 @@ export const updateProduct = async (productId, productData, token) => {
       },
       body: JSON.stringify(productData),
     });
-    return handleResponse(response); // PUT might return 204 No Content
+    return handleResponse(response); 
   } catch (error) {
-    console.error(`Error in updateProduct for ${productId}:`, error);
-    throw error;
+    console.error(`Error in updateProduct for ${productId}:`, error.message, error.status ? `Status: ${error.status}` : '', error.details ? `Details: ${JSON.stringify(error.details)}` : '');
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(error.message || `Failed to update product ${productId}`, error.status || 500);
   }
 };
 
@@ -129,7 +138,6 @@ export const updateProduct = async (productId, productData, token) => {
  * @returns {Promise<null>} - A promise that resolves to null on success (204 No Content).
  */
 export const deleteProduct = async (productId, token) => {
-  // The C# controller uses route [HttpDelete("/products/{id:length(24)}")]
   const url = `${API_BASE_URL}/products/${productId}`;
   try {
     const response = await fetch(url, {
@@ -138,9 +146,10 @@ export const deleteProduct = async (productId, token) => {
         'Authorization': `Bearer ${token}`,
       },
     });
-    return handleResponse(response); // DELETE typically returns 204 No Content
+    return handleResponse(response); 
   } catch (error) {
-    console.error(`Error in deleteProduct for ${productId}:`, error);
-    throw error;
+    console.error(`Error in deleteProduct for ${productId}:`, error.message, error.status ? `Status: ${error.status}` : '', error.details ? `Details: ${JSON.stringify(error.details)}` : '');
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(error.message || `Failed to delete product ${productId}`, error.status || 500);
   }
 };

@@ -5,7 +5,8 @@ import { getAllProducts } from '../services/productService';
 import '../styles/product-pages.css';
 
 const Basics = () => {
-  const [basicsProducts, setBasicsProducts] = useState([]);
+  const [allBasicProducts, setAllBasicProducts] = useState([]); // Renamed to store initially fetched & tag-filtered 'basics'
+  const [displayedProducts, setDisplayedProducts] = useState([]); // For products to be displayed after category filter & sort
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('All');
@@ -16,9 +17,20 @@ const Basics = () => {
       try {
         setIsLoading(true);
         setError(null);
-        const allProducts = await getAllProducts();
-        const filteredProducts = allProducts.filter(p => p.category && p.category.toLowerCase() === 'basics');
-        setBasicsProducts(filteredProducts);
+        const allProductsFromApi = await getAllProducts();
+
+        if (!Array.isArray(allProductsFromApi)) {
+          throw new Error("API did not return an array of products.");
+        }
+
+        // Client-side filtering for 'basics' tag
+        // Assuming product.tags is an array of strings
+        const filteredBasicItems = allProductsFromApi.filter(
+          product => product.tags && Array.isArray(product.tags) && product.tags.includes('basics')
+        );
+        
+        setAllBasicProducts(filteredBasicItems); // Set the source list of basic products
+        setDisplayedProducts(filteredBasicItems); // Initially, all fetched basic items are shown
       } catch (err) {
         console.error("Error fetching basics products:", err);
         setError(err.message || "Failed to load products.");
@@ -32,9 +44,9 @@ const Basics = () => {
 
   // Handle filtering and sorting changes
   useEffect(() => {
-    let result = [...basicsProducts];
+    let result = [...allBasicProducts]; // Start with the source list of all basic products
     
-    // Apply category filter
+    // Apply secondary category filter
     if (filter !== 'All') {
       result = result.filter(p => p.category === filter);
     }
@@ -53,8 +65,8 @@ const Basics = () => {
         break;
     }
     
-    setBasicsProducts(result);
-  }, [filter, sort, basicsProducts]);
+    setDisplayedProducts(result); // Update the list of products to be displayed
+  }, [filter, sort, allBasicProducts]); // Dependency is on the source list
  
   const handleFilterChange = (e) => {
     setFilter(e.target.value);
@@ -72,18 +84,17 @@ const Basics = () => {
     return <div className="error-state">Error: {error}</div>;
   }
 
-  if (basicsProducts.length === 0) {
-    return <div className="empty-state">No basic products found at the moment.</div>;
-  }
+  // Display message if no products match the 'basics' tag initially, or after filters
+  // The condition for "no products found matching criteria" will be handled by checking displayedProducts.length in the JSX
 
   return (
     <div className="product-page">
       <div className="container">
         <div className="page-header">
-          <h2 className="page-title">New Arrivals</h2>
+          <h2 className="page-title">Basics</h2>
           <div className="breadcrumb">
             <Link to="/" className="breadcrumb-link">Home</Link> &gt; 
-            <span className="breadcrumb-current">New Arrivals</span>
+            <span className="breadcrumb-current">Basics</span>
           </div>
         </div>
 
@@ -116,9 +127,15 @@ const Basics = () => {
         </div>
 
         <div className="product-grid">
-          {basicsProducts.map(product => (
-            <ProductCard key={product._id || product.id} product={product} />
-          ))}
+          {displayedProducts.length > 0 ? (
+            displayedProducts.map(product => (
+              <ProductCard key={product._id || product.id} product={product} />
+            ))
+          ) : (
+            <div className="no-products-message">
+              No products found matching your criteria.
+            </div>
+          )}
         </div>
       </div>
     </div>
