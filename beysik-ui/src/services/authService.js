@@ -1,6 +1,48 @@
-// filepath: c:/Users/ChristianLuisShih/Documents/Beysik-UI/Beysik-UI/beysik-ui/src/services/authService.js
+// filepath: d:\_School\Beysik\Beysik-UI\beysik-ui\src\services\authService.js
 // This service is intended for calls to your application's backend that are related to user
 // authentication, authorization, or management, especially those requiring an authenticated session.
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
+// Consistent and more detailed error object
+class ApiError extends Error {
+  constructor(message, status, details) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.details = details;
+  }
+}
+
+// Consistent response handler
+const handleResponse = async (response) => {
+  if (!response.ok) {
+    let errorMessage = response.statusText;
+    let errorDetails = null;
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorData.title || JSON.stringify(errorData);
+      errorDetails = errorData;
+    } catch (e) {
+      try {
+        errorMessage = await response.text() || response.statusText;
+      } catch (textError) {
+        // Fallback
+      }
+    }
+    throw new ApiError(errorMessage, response.status, errorDetails);
+  }
+  // For 204 No Content or other methods that might not return JSON
+  if (response.status === 204 || response.headers.get("content-length") === "0") {
+    return null; 
+  }
+  try {
+    return await response.json();
+  } catch (e) {
+    console.warn("Response was OK but not valid JSON.", e);
+    return { message: 'Operation successful, but no JSON content returned.' };
+  }
+};
 
 /**
  * Example function: Fetches additional user profile data from your application's backend.
@@ -11,59 +53,34 @@
  * @returns {Promise<Object|null>} - A promise that resolves to the user profile object from your backend, or null.
  */
 export const getBackendUserProfile = async (getAccessToken) => {
-  if (typeof getAccessToken !== 'function') {
-    console.error('getAccessToken function is required to fetch backend user profile.');
-    return Promise.reject(new Error('Authentication token provider is missing or not a function.'));
-  }
-
   try {
     const token = await getAccessToken();
     if (!token) {
-      console.warn("No access token available. Cannot fetch backend user profile.");
-      return null; // Or throw new Error("Not authenticated or token is unavailable.");
+      // console.warn("No access token available. Cannot fetch backend user profile.");
+      // return null; 
+      throw new ApiError("No access token available. Cannot fetch backend user profile.", 401);
     }
 
-    // Replace '/api/me' with your actual backend endpoint for fetching user-specific data
-    const apiUrl = '/api/me'; // EXAMPLE: Replace with your actual endpoint
-    /*
-    console.log(`Calling API: GET ${apiUrl} with token.`);
+    const apiUrl = `${API_BASE_URL}/me`;
+    
     const response = await fetch(apiUrl, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`Failed to fetch user profile from backend. Status: ${response.status}`, errorText);
-      throw new Error(`Failed to fetch user profile from backend. Status: ${response.status}`);
-    }
-    const userProfile = await response.json();
-    console.log('Backend user profile fetched:', userProfile);
-    return userProfile;
-    */
-
-    // --- MOCK IMPLEMENTATION (Remove when actual API is integrated) ---
-    console.warn(`Using MOCK implementation for getBackendUserProfile. API call to ${apiUrl} is commented out.`);
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Simulate fetching some backend-specific user data
-        const mockProfile = {
-          appSpecificRole: 'editor',
-          preferences: {
-            theme: 'dark'
-          },
-          // You might include the Auth0 user ID (sub) if your backend links to it
-        };
-        console.log('Mock backend user profile returned:', mockProfile);
-        resolve(mockProfile);
-      }, 700);
-    });
-    // --- END MOCK IMPLEMENTATION ---
+    // if (!response.ok) {
+    //   const errorText = await response.text();
+    //   console.error(`Failed to fetch user profile from backend. Status: ${response.status}`, errorText);
+    //   throw new Error(`Failed to fetch user profile from backend. Status: ${response.status}`);
+    // }
+    // const userProfile = await response.json();
+    return handleResponse(response);
 
   } catch (error) {
-    console.error("Error in getBackendUserProfile:", error);
-    throw error; // Re-throw to allow caller to handle
+    console.error("Error in getBackendUserProfile:", error.message, error.status ? `Status: ${error.status}` : '', error.details ? `Details: ${JSON.stringify(error.details)}` : '');
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(error.message || 'Failed to fetch backend user profile', error.status || 500);
   }
 };
 
@@ -75,21 +92,16 @@ export const getBackendUserProfile = async (getAccessToken) => {
  * @returns {Promise<Object|null>} - A promise that resolves to the updated preferences or API response.
  */
 export const updateBackendUserPreferences = async (preferences, getAccessToken) => {
-  if (typeof getAccessToken !== 'function') {
-    console.error('getAccessToken function is required to update backend user preferences.');
-    return Promise.reject(new Error('Authentication token provider is missing or not a function.'));
-  }
-
   try {
     const token = await getAccessToken();
     if (!token) {
-      console.warn("No access token available. Cannot update backend user preferences.");
-      return null;
+      // console.warn("No access token available. Cannot update backend user preferences.");
+      // return null;
+      throw new ApiError("No access token available. Cannot update backend user preferences.", 401);
     }
 
-    const apiUrl = '/api/me/preferences'; // EXAMPLE: Replace with your actual endpoint
-    /*
-    console.log(`Calling API: POST ${apiUrl} with token.`);
+    const apiUrl = `${API_BASE_URL}/me/preferences`;
+    
     const response = await fetch(apiUrl, {
       method: 'POST', // or PUT
       headers: {
@@ -99,29 +111,18 @@ export const updateBackendUserPreferences = async (preferences, getAccessToken) 
       body: JSON.stringify(preferences),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`Failed to update user preferences on backend. Status: ${response.status}`, errorText);
-      throw new Error(`Failed to update user preferences on backend. Status: ${response.status}`);
-    }
-    const updatedData = await response.json();
-    console.log('Backend user preferences updated:', updatedData);
-    return updatedData;
-    */
-
-    // --- MOCK IMPLEMENTATION ---
-    console.warn(`Using MOCK implementation for updateBackendUserPreferences. API call to ${apiUrl} is commented out.`);
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log('Mock: Backend user preferences updated with:', preferences);
-        resolve({ success: true, preferences });
-      }, 600);
-    });
-    // --- END MOCK IMPLEMENTATION ---
+    // if (!response.ok) {
+    //   const errorText = await response.text();
+    //   console.error(`Failed to update user preferences on backend. Status: ${response.status}`, errorText);
+    //   throw new Error(`Failed to update user preferences on backend. Status: ${response.status}`);
+    // }
+    // const updatedData = await response.json();
+    return handleResponse(response);
 
   } catch (error) {
-    console.error("Error in updateBackendUserPreferences:", error);
-    throw error;
+    console.error("Error in updateBackendUserPreferences:", error.message, error.status ? `Status: ${error.status}` : '', error.details ? `Details: ${JSON.stringify(error.details)}` : '');
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(error.message || 'Failed to update backend user preferences', error.status || 500);
   }
 };
 

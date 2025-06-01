@@ -1,12 +1,10 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom'; // Renamed to avoid conflict if MUI Link is used
-import { Container, Typography, Box, Paper, Grid, Avatar } from '@mui/material';
+import { Container, Typography, Box, Paper, Grid } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import '../styles/product-pages.css'; // Assuming this file contains the shared page styles
 
 // Placeholder image URLs - replace with your actual images
-const teamMember1Image = 'https://placehold.co/300x300/E0E0E0/333?text=Team+Member+1&font=Inter';
-const teamMember2Image = 'https://placehold.co/300x300/F0F0F0/333?text=Team+Member+2&font=Inter';
 const brandStoryImage = 'https://placehold.co/600x400/EAEAEA/333?text=Our+Story&font=Inter';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
@@ -38,7 +36,7 @@ const AboutPage = () => {
             <Grid container spacing={4} alignItems="center">
               <Grid item xs={12} md={6}>
                 <Typography variant="body1" paragraph>
-                  Welcome to BEYSIK, where minimalist design meets conscious living. Founded in [Year], our journey began with a simple idea: to create high-quality, timeless apparel that doesn't compromise on style or sustainability.
+                  Welcome to BEYSIK, where minimalist design meets conscious living. Founded in 2025, our journey began with a simple idea: to create high-quality, timeless apparel that doesn't compromise on style or sustainability.
                 </Typography>
                 <Typography variant="body1" paragraph>
                   We believe that fashion should be effortless and enduring. Our collections are thoughtfully designed with a focus on clean lines, versatile pieces, and premium, eco-friendly materials. We're passionate about creating clothes that you'll love to wear season after season.
@@ -83,33 +81,6 @@ const AboutPage = () => {
                   We focus on creating versatile essentials that transcend fleeting trends, allowing you to build a wardrobe that is both modern and enduring.
                 </Typography>
               </Grid>
-            </Grid>
-          </StyledPaper>
-
-          <StyledPaper>
-            <Typography variant="h4" component="h2" gutterBottom align="center" sx={{ mb: 4 }}>
-              Meet the Team (Optional)
-            </Typography>
-            <Grid container spacing={4} justifyContent="center">
-              <Grid item xs={12} sm={6} md={4} textAlign="center">
-                <Avatar
-                  alt="Team Member 1"
-                  src={teamMember1Image}
-                  sx={{ width: 120, height: 120, margin: '0 auto 16px' }}
-                />
-                <Typography variant="h6">Jane Doe</Typography>
-                <Typography variant="body2" color="text.secondary">Founder & CEO</Typography>
-              </Grid>
-              <Grid item xs={12} sm={6} md={4} textAlign="center">
-                <Avatar
-                  alt="Team Member 2"
-                  src={teamMember2Image}
-                  sx={{ width: 120, height: 120, margin: '0 auto 16px' }}
-                />
-                <Typography variant="h6">John Smith</Typography>
-                <Typography variant="body2" color="text.secondary">Lead Designer</Typography>
-              </Grid>
-              {/* Add more team members as needed */}
             </Grid>
           </StyledPaper>
 

@@ -18,14 +18,17 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { sendOrderToQueue } from '../services/queueService';
+import { useCart } from '../context/CartContext'; // Added
+import { createOrder } from '../services/orderService'; // Added
+// import { sendOrderToQueue } from '../services/queueService'; // Removed
 
-const CheckoutPage = ({ cartItems = [], clearCart }) => {
+const CheckoutPage = () => { // Removed cartItems, clearCart props
   const { user, getAccessToken } = useAuth();
+  const { cartItems, cartTotal, clearCart: clearCartFromContext, itemCount } = useCart(); // Added
   const navigate = useNavigate();
   const [shippingInfo, setShippingInfo] = useState({
-    firstName: user?.name?.split(' ')[0] || '',
-    lastName: user?.name?.split(' ')[1] || '',
+    firstName: user?.given_name || user?.name?.split(' ')[0] || '', // Updated to use given_name
+    lastName: user?.family_name || user?.name?.split(' ')[1] || '', // Updated to use family_name
     address: '',
     city: '',
     state: '',
@@ -37,18 +40,18 @@ const CheckoutPage = ({ cartItems = [], clearCart }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  // const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0); // Removed, use cartTotal
   const shipping = 10; // Fixed shipping cost
-  const tax = subtotal * 0.08; // 8% tax
-  const total = subtotal + shipping + tax;
+  const tax = cartTotal * 0.08; // 8% tax, uses cartTotal
+  const total = cartTotal + shipping + tax; // uses cartTotal
   
   // Redirect to login if not authenticated
   useEffect(() => {
-    if (!user && cartItems.length > 0) {
+    if (!user && itemCount > 0) { // Use itemCount from context
       // Save current cart to session storage before redirecting
       navigate('/login', { state: { from: '/checkout', message: 'Please log in to complete your purchase' } });
     }
-  }, [user, navigate, cartItems.length]);
+  }, [user, navigate, itemCount]); // Use itemCount
   
   // Handle input changes
   const handleInputChange = (e) => {
@@ -72,28 +75,28 @@ const CheckoutPage = ({ cartItems = [], clearCart }) => {
       return;
     }
 
-    if (cartItems.length === 0) {
+    if (itemCount === 0) { // Use itemCount from context
       setError('Your cart is empty');
       setIsSubmitting(false);
       return;
     }
     
     try {
-      // Create order payload according to C# Order model
+      const token = await getAccessToken(); // Get token first
+      // Create order payload according to C# Order model & orderService requirements
       const orderPayload = {
-        OrderDate: new Date().toISOString(),
-        UserID: user.sub, // Assuming user.sub is the Auth0 user ID
-        ProductID: cartItems.map(item => item.id), // Assuming item.id is the ProductID
-        Quantity: cartItems.map(item => item.quantity),
-        Status: 0, // 0 for Pending
+        orderDate: new Date().toISOString(),
+        userId: user.sub, 
+        productIds: cartItems.map(item => item.productId || item.id), // Handle variations
+        quantities: cartItems.map(item => item.quantity),
       };
       
-      // Send to backend, passing getAccessToken
-      const response = await sendOrderToQueue(orderPayload, getAccessToken); 
+      // Send to backend using createOrder
+      const response = await createOrder(orderPayload, token); 
       
       // Show success and clear cart
       setSuccess(true);
-      clearCart();
+      clearCartFromContext(); // Use clearCart from context
       
       // Redirect after a short delay, passing the original frontend order/cart details for confirmation page
       const confirmationOrderData = {
@@ -116,7 +119,7 @@ const CheckoutPage = ({ cartItems = [], clearCart }) => {
     }
   };
   
-  if (cartItems.length === 0 && !isSubmitting && !success) {
+  if (itemCount === 0 && !isSubmitting && !success) { // Use itemCount
     return (
       <Container sx={{ mt: 12, mb: 5 }}>
         <Typography variant="h4" gutterBottom>Checkout</Typography>
@@ -147,7 +150,7 @@ const CheckoutPage = ({ cartItems = [], clearCart }) => {
               {cartItems.map((item, index) => (
                 <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="body2">
-                    {item.name} x{item.quantity} ({item.size}, {item.color})
+                    {item.productName || item.name} x{item.quantity} ({item.size}, {item.color}) {/* Handle variations */}
                   </Typography>
                   <Typography variant="body2">${(item.price * item.quantity).toFixed(2)}</Typography>
                 </Box>
@@ -156,7 +159,7 @@ const CheckoutPage = ({ cartItems = [], clearCart }) => {
             <Divider sx={{ my: 2 }} />
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
               <Typography>Subtotal</Typography>
-              <Typography>${subtotal.toFixed(2)}</Typography>
+              <Typography>${cartTotal.toFixed(2)}</Typography> {/* Use cartTotal */}
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
               <Typography>Shipping</Typography>

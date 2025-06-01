@@ -1,91 +1,133 @@
 // d:\_School\Beysik\Beysik-UI\beysik-ui\src\services\cartService.js
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api'; // Ensure this matches your cart service endpoint structure
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+
+// Consistent and more detailed error object
+class ApiError extends Error {
+  constructor(message, status, details) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.details = details;
+  }
+}
 
 const handleResponse = async (response) => {
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: response.statusText }));
-    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    let errorMessage = response.statusText;
+    let errorDetails = null;
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorData.title || JSON.stringify(errorData);
+      errorDetails = errorData;
+    } catch (e) {
+      try {
+        errorMessage = await response.text() || response.statusText;
+      } catch (textError) {
+        // Fallback
+      }
+    }
+    throw new ApiError(errorMessage, response.status, errorDetails);
   }
-  // For 204 No Content, there might not be a JSON body
   if (response.status === 204) {
     return null; 
   }
   try {
     return await response.json();
   } catch (e) {
-    // If response is OK but not JSON (e.g. plain text confirmation for delete)
     return { message: 'Operation successful, no JSON response.'};
   }
 };
 
-// Corresponds to [HttpGet("{userId}")]
 export const getCart = async (userId, token) => {
-  if (!userId) throw new Error("User ID is required to fetch cart.");
-  const response = await fetch(`${API_BASE_URL}/cart/${userId}`, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-  return handleResponse(response);
-};
-
-// Corresponds to [HttpPost("items")]
-// Note: Backend expects userId as a query param and newItem in body
-export const addItemToCart = async (userId, newItem, token) => {
-  if (!userId) throw new Error("User ID is required to add item to cart.");
-  const response = await fetch(`${API_BASE_URL}/cart/items?userId=${encodeURIComponent(userId)}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify(newItem),
-  });
-  return handleResponse(response);
-};
-
-// Corresponds to [HttpPut("items/{id}")]
-// Note: Backend expects item id in path and updatedItem in body
-export const updateCartItem = async (itemId, updatedItem, token) => {
-  const response = await fetch(`${API_BASE_URL}/cart/items/${itemId}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify(updatedItem),
-  });
-  return handleResponse(response);
-};
-
-// Corresponds to [HttpDelete("items/{id}")]
-// Note: Backend expects item id in path
-export const removeCartItem = async (itemId, token) => {
-  const response = await fetch(`${API_BASE_URL}/cart/items/${itemId}`, {
-    method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-  // DELETE might return 204 No Content or a success message
-   if (!response.ok && response.status !== 204) {
-    const errorData = await response.json().catch(() => ({ message: response.statusText }));
-    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+  if (!userId) throw new ApiError("User ID is required to fetch cart.", 400);
+  try {
+    const response = await fetch(`${API_BASE_URL}/cart/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error in getCart:", error.message, error.status ? `Status: ${error.status}` : '', error.details ? `Details: ${JSON.stringify(error.details)}` : '');
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(error.message || 'Failed to fetch cart', error.status || 500);
   }
-  return response.status === 204 ? { message: 'Item removed successfully' } : handleResponse(response);
 };
 
-// Optional: A function to clear the entire cart for a user if the backend supports it.
-// This is a common feature but not explicitly in the C# controller provided.
-// If you add a `DELETE api/cart/{userId}` endpoint, you could implement this:
+export const addItemToCart = async (userId, newItem, token) => {
+  if (!userId) throw new ApiError("User ID is required to add item to cart.", 400);
+  try {
+    const response = await fetch(`${API_BASE_URL}/cart/items?userId=${encodeURIComponent(userId)}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(newItem),
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error("Error in addItemToCart:", error.message, error.status ? `Status: ${error.status}` : '', error.details ? `Details: ${JSON.stringify(error.details)}` : '');
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(error.message || 'Failed to add item to cart', error.status || 500);
+  }
+};
+
+export const updateCartItem = async (itemId, updatedItem, token) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/cart/items/${itemId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(updatedItem),
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error(`Error in updateCartItem for ${itemId}:`, error.message, error.status ? `Status: ${error.status}` : '', error.details ? `Details: ${JSON.stringify(error.details)}` : '');
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(error.message || `Failed to update item ${itemId}`, error.status || 500);
+  }
+};
+
+export const removeCartItem = async (itemId, token) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/cart/items/${itemId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (response.status === 204) {
+      return { message: 'Item removed successfully' };
+    }
+    return handleResponse(response); 
+  } catch (error) {
+    console.error(`Error in removeCartItem for ${itemId}:`, error.message, error.status ? `Status: ${error.status}` : '', error.details ? `Details: ${JSON.stringify(error.details)}` : '');
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(error.message || `Failed to remove item ${itemId}`, error.status || 500);
+  }
+};
+
 /*
 export const clearCart = async (userId, token) => {
-  const response = await fetch(`${API_BASE_URL}/cart/${userId}`, {
-    method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-  return handleResponse(response);
+  if (!userId) throw new ApiError("User ID is required to clear cart.", 400);
+  try {
+    const response = await fetch(`${API_BASE_URL}/cart/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (response.status === 204) {
+      return { message: 'Cart cleared successfully' };
+    }
+    return handleResponse(response);
+  } catch (error) {
+    console.error(`Error in clearCart for user ${userId}:`, error.message, error.status ? `Status: ${error.status}` : '', error.details ? `Details: ${JSON.stringify(error.details)}` : '');
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(error.message || 'Failed to clear cart', error.status || 500);
+  }
 };
 */
