@@ -1,5 +1,5 @@
 // Filepath: d:\_School\Beysik\Beysik-UI\beysik-ui\src\services\orderService.js
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5002/api';
 
 // Consistent and more detailed error object
 class ApiError extends Error {

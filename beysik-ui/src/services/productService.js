@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001/api"; // Adjusted for Vite and consistency
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api"; // Adjusted for Vite and consistency
 
 // Consistent and more detailed error object
 class ApiError extends Error {

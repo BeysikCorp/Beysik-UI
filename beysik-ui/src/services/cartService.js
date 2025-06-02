@@ -1,5 +1,5 @@
 // d:\_School\Beysik\Beysik-UI\beysik-ui\src\services\cartService.js
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 // Consistent and more detailed error object
 class ApiError extends Error {
@@ -73,9 +73,9 @@ export const addItemToCart = async (userId, newItem, token) => {
   }
 };
 
-export const updateCartItem = async (itemId, updatedItem, token) => {
+export const updateCartItem = async (userId, updatedItem, token) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/cart/items/${itemId}`, {
+    const response = await fetch(`${API_BASE_URL}/cart/items?userId=${encodeURIComponent(userId)}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -85,9 +85,9 @@ export const updateCartItem = async (itemId, updatedItem, token) => {
     });
     return handleResponse(response);
   } catch (error) {
-    console.error(`Error in updateCartItem for ${itemId}:`, error.message, error.status ? `Status: ${error.status}` : '', error.details ? `Details: ${JSON.stringify(error.details)}` : '');
+    console.error(`Error in updateCartItem for ${userId}:`, error.message, error.status ? `Status: ${error.status}` : '', error.details ? `Details: ${JSON.stringify(error.details)}` : '');
     if (error instanceof ApiError) throw error;
-    throw new ApiError(error.message || `Failed to update item ${itemId}`, error.status || 500);
+    throw new ApiError(error.message || `Failed to update item`, error.status || 500);
   }
 };
 
