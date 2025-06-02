@@ -4,7 +4,7 @@ import '../styles/product-pages.css';
 // import allProducts from '../data/products.json'; // Remove mock data import
 import { getAllProducts } from '../services/productService'; // Import the service
 import { CircularProgress, Box, Typography } from '@mui/material'; // For loading/error states
-import ProductCard from '../../components/ProductCard'; // Import ProductCard
+import ProductCard from '../components/ProductCard'; // Import ProductCard
 
 const NewArrivals = () => {
   const [allFetchedProducts, setAllFetchedProducts] = useState([]); // Store all products fetched for this page type

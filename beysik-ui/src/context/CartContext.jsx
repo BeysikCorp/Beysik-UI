@@ -2,8 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   getCart as apiGetCart, 
   addItemToCart as apiAddItemToCart, 
-  updateCartItemQuantity as apiUpdateCartItemQuantity, 
-  removeItemFromCart as apiRemoveItemFromCart,
+  updateCartItem as apiUpdateCartItemQuantity, 
+  removeCartItem as apiRemoveItemFromCart,
   clearCart as apiClearCart
 } from '../services/cartService';
 import { useAuth } from './AuthContext'; // To get user token

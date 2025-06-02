@@ -49,7 +49,7 @@ const CartModal = ({
         aria-modal="true"
         role="dialog"
       >
-        <button className="cart-modal-close" onClick={onClose} aria-label="Close Cart">&times;</button>
+        <button className="cart-modal-close" onClick={e => {e.stopPropagation(); onClose();}} aria-label="Close Cart">&times;</button>
         <h2>Cart</h2>
         {loading && <p>Loading cart...</p>}
         {error && <p className="cart-modal-error">Error: {error}</p>}

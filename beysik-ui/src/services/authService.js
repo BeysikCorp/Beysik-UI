@@ -2,7 +2,7 @@
 // This service is intended for calls to your application's backend that are related to user
 // authentication, authorization, or management, especially those requiring an authenticated session.
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.REACT_APP_AUTH0_DOMAIN || 'http://localhost:5000/api';
 
 // Consistent and more detailed error object
 class ApiError extends Error {

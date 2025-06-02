@@ -9,9 +9,9 @@ import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme'; // Your MUI theme
 import './styles/global.css'; // Your global styles
 
-const domain = process.env.REACT_APP_AUTH0_DOMAIN;
-const clientId = process.env.REACT_APP_AUTH0_CLIENT_ID;
-const audience = process.env.REACT_APP_AUTH0_AUDIENCE;
+const domain = import.meta.env.VITE_AUTH0_DOMAIN;
+const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
+// const audience = process.env.REACT_APP_AUTH0_AUDIENCE;
 
 if (!domain || !clientId) {
   console.error(
@@ -23,13 +23,13 @@ if (!domain || !clientId) {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
+    {/* <BrowserRouter> */}
       <Auth0Provider
         domain={domain}
         clientId={clientId}
         authorizationParams={{
           redirect_uri: window.location.origin,
-          ...(audience && { audience: audience }), // Conditionally add audience
+        //   ...(audience && { audience: audience }), // Conditionally add audience
         }}
         cacheLocation="localstorage" // Recommended for SPAs
       >
@@ -41,6 +41,6 @@ root.render(
           </CartProvider>
         </AuthProvider>
       </Auth0Provider>
-    </BrowserRouter>
+    {/* </BrowserRouter> */}
   </React.StrictMode>
 );

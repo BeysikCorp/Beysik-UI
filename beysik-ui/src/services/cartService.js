@@ -110,7 +110,7 @@ export const removeCartItem = async (itemId, token) => {
   }
 };
 
-/*
+
 export const clearCart = async (userId, token) => {
   if (!userId) throw new ApiError("User ID is required to clear cart.", 400);
   try {
@@ -130,4 +130,4 @@ export const clearCart = async (userId, token) => {
     throw new ApiError(error.message || 'Failed to clear cart', error.status || 500);
   }
 };
-*/
+

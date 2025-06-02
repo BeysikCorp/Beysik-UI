@@ -7,7 +7,7 @@ import {
 } from '@mui/icons-material';
 import '../styles/adminDashboard.css';
 import TabPanel from './components/TabPanel';
-import { useAdminLogic } from './hooks/useAdminLogic';
+import useAdminLogic from './hooks/useAdminLogic';
 import ProductsSection from './sections/ProductsSection';
 import OrdersSection from './sections/OrdersSection';
 import UsersSection from './sections/UsersSection';
